@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import { setting } from '../../lib/db.ts';
+import { listOrders, isUuid } from '../../lib/orders.ts';
+import { euros } from '../../lib/pricing.ts';
+
+const { id } = Astro.params;
+const [order] = isUuid(id) ? await listOrders('where o.id = $1', [id]) : [];
+if (!order) return Astro.redirect('/');
+const bizum = await setting('bizum');
+const first = order.buyer_name.split(' ')[0];
+const concept = `Roma ${order.buyer_name}`;
+---
+<Base title={`Pedido de ${first} · ¡Rumbo a Roma!`}>
+  <main class="done">
+    <section class="pay" aria-labelledby="h">
+      <h1 id="h">¡Gracias, {first}!</h1>
+      {bizum ? (
+        <p class="big">Haz un Bizum de <strong class="num">{euros(order.total_cents)}</strong> al <strong class="num">{bizum}</strong></p>
+      ) : (
+        <p class="big">Son <strong class="num">{euros(order.total_cents)}</strong>. {order.seller_name} te dirá a qué número hacer el Bizum.</p>
+      )}
+      <p>En el concepto pon <strong>{concept}</strong> para que sepamos que es tuyo.</p>
+      {bizum && (
+        <button class="btn light" type="button" data-copy={bizum.replace(/\s/g, '')}>Copiar el número</button>
+      )}
+    </section>
+
+    <section class="recap" aria-labelledby="r">
+      <h2 id="r">Tu pedido</h2>
+      <ul>
+        {order.items.map((i) => (
+          <li><span>{i.product}{i.variant && <small>{i.variant}</small>}</span><span class="num">× {i.qty}</span></li>
+        ))}
+      </ul>
+      <p class="total"><span>Total</span> <strong class="num">{euros(order.total_cents)}</strong></p>
+      <p>Te lo da en mano {order.seller_name}. Si quieres cambiar algo, díselo a ella.</p>
+      <p><a href="/">Hacer otro pedido</a></p>
+    </section>
+  </main>
+</Base>
+
+<script>
+  document.querySelector<HTMLButtonElement>('[data-copy]')?.addEventListener('click', async (e) => {
+    const b = e.currentTarget as HTMLButtonElement;
+    await navigator.clipboard.writeText(b.dataset.copy!);
+    b.textContent = 'Copiado';
+    setTimeout(() => (b.textContent = 'Copiar el número'), 2000);
+  });
+</script>
+
+<style>
+  .done { min-height: 100svh; display: grid; grid-template-columns: repeat(12, 1fr); }
+  .pay { grid-column: 1 / 8; background: var(--wine); color: var(--paper); padding: clamp(48px, 8vw, 120px) var(--margin); display: grid; align-content: center; gap: 28px; justify-items: start; }
+  h1 { font: 400 clamp(56px, 8vw, 120px)/0.92 var(--display); text-transform: uppercase; }
+  .big { font-size: clamp(28px, 3.2vw, 44px); line-height: 1.2; font-weight: 600; max-width: 20ch; }
+  .big strong { font: 400 1.25em/1 var(--display); letter-spacing: 0.01em; white-space: nowrap; }
+  .pay p:not(.big) { font-size: 18px; max-width: 44ch; }
+  .recap { grid-column: 8 / 13; padding: clamp(48px, 8vw, 120px) var(--margin); display: grid; align-content: center; gap: 20px; }
+  h2 { font: 400 48px/1 var(--display); text-transform: uppercase; color: var(--wine); }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  li { display: flex; justify-content: space-between; gap: 16px; font-weight: 700; }
+  li small { display: block; font-weight: 500; font-size: 15px; color: var(--ink-soft); }
+  .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; }
+  .total strong { font: 400 48px/1 var(--display); }
+  @media (max-width: 900px) {
+    .pay, .recap { grid-column: 1 / -1; }
+  }
+</style>
