@@ -195,6 +195,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
     <p class="wordmark">recoletos</p>
     <p class="sub">-centro universitario-</p>
     <p class="sellers">¿Vendes con nosotras? <a href="/entrar">Entra con tu Gmail</a></p>
+    <p class="legal-links"><a href="/politica-privacidad">Política de privacidad</a> <a href="/condiciones-servicio">Condiciones del servicio</a></p>
   </footer>
 </Base>
 
@@ -396,6 +397,8 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
   .sellers { margin-top: 56px; font-size: 18px; }
   .sellers a { font-weight: 700; }
   .sellers a:hover { color: var(--paper-deep); }
+  .legal-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; margin-top: 24px; font-size: 15px; }
+  .legal-links a:hover { color: var(--paper-deep); }
 
   /* Entrances */
   :global(.js) .rise > * { opacity: 0; transform: translateY(24px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); }

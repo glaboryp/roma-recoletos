@@ -1,0 +1,49 @@
+---
+import Legal from '../layouts/Legal.astro';
+
+const contacto = 'recoletosuniversitario@gmail.com';
+---
+<Legal title="Condiciones del servicio" updated="22 de noviembre de 2026">
+  <p>
+    Esta web la usamos un grupo de universitarias del centro universitario Recoletos para vender fajines y calcetines y pagarnos el viaje a Roma en la Semana Santa de 2027.
+    Al hacer un pedido o entrar en los paneles aceptas estas condiciones.
+  </p>
+
+  <h2>Los pedidos</h2>
+  <ul>
+    <li>Los precios son los que se ven en la tienda al hacer el pedido, con los packs ya aplicados.</li>
+    <li>Al enviar el pedido te enseñamos el importe y el número al que hacer el Bizum. El pedido queda confirmado cuando nos llega el pago.</li>
+    <li>Las fotos son de nuestros productos. Puede haber pequeñas diferencias de color, y algunos estampados pueden agotarse: si pasa, la vendedora te ofrecerá otro.</li>
+  </ul>
+
+  <h2>Entrega</h2>
+  <p>No hacemos envíos. Te lo da en mano la persona de la que vienes, que se pondrá en contacto contigo en el móvil que nos dejes.</p>
+
+  <h2>Cambios y cancelaciones</h2>
+  <p>
+    Si quieres cambiar o anular un pedido, díselo a tu vendedora o escríbenos a <a href={`mailto:${contacto}`}>{contacto}</a>.
+    Si ya habías pagado y no podemos darte el pedido, te devolvemos el dinero.
+  </p>
+
+  <h2>Acceso de vendedoras y gestión</h2>
+  <ul>
+    <li>Solo pueden entrar las personas que hayamos dado de alta con su cuenta de Google.</li>
+    <li>Cada vendedora ve sus propios pedidos y los datos de sus compradores, y solo puede usarlos para gestionar la venta.</li>
+    <li>Podemos retirar el acceso a quien haga un mal uso de la web.</li>
+  </ul>
+
+  <h2>Responsabilidad</h2>
+  <p>
+    Hacemos lo posible por que la web funcione bien y los datos sean correctos, pero es un proyecto sin ánimo de lucro llevado por estudiantes.
+    Si ves un error en un precio o en un pedido, avísanos y lo corregimos.
+  </p>
+
+  <h2>Datos personales</h2>
+  <p>Cómo tratamos tus datos se explica en la <a href="/politica-privacidad">política de privacidad</a>.</p>
+
+  <h2>Cambios en estas condiciones</h2>
+  <p>Si cambiamos estas condiciones, lo indicaremos aquí con la nueva fecha. Se rigen por la ley española.</p>
+
+  <h2>Contacto</h2>
+  <p><a href={`mailto:${contacto}`}>{contacto}</a></p>
+</Legal>
