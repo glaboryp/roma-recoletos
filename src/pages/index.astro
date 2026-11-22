@@ -11,7 +11,7 @@ const options = (p: Product) => (p.variants.length ? p.variants : [null]);
 const unit = (p: Product) => (p.name.toLowerCase().includes('calcet') ? 'pares' : 'uds.');
 
 let error = '';
-const values = { name: '', phone: '', email: '', seller: Astro.url.searchParams.get('de') ?? '', notes: '' };
+const values = { name: '', phone: '', seller: Astro.url.searchParams.get('de') ?? '', notes: '' };
 const qty: Record<string, number> = {};
 
 if (Astro.request.method === 'POST') {
@@ -35,9 +35,9 @@ if (Astro.request.method === 'POST') {
     const { total, cost } = orderTotals(products, lines);
     const id = await tx(async (c) => {
       const { rows: [o] } = await c.query(
-        `insert into orders (seller_id, buyer_name, buyer_email, buyer_phone, notes, total_cents, cost_cents)
-         values ($1, $2, $3, $4, $5, $6, $7) returning id`,
-        [seller.id, values.name, values.email || null, values.phone, values.notes || null, total, cost],
+        `insert into orders (seller_id, buyer_name, buyer_phone, notes, total_cents, cost_cents)
+         values ($1, $2, $3, $4, $5, $6) returning id`,
+        [seller.id, values.name, values.phone, values.notes || null, total, cost],
       );
       for (const l of lines) {
         await c.query('insert into order_items (order_id, product_id, variant, qty) values ($1, $2, $3, $4)', [o.id, l.product_id, l.variant, l.qty]);
@@ -130,10 +130,6 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
           <label class="field">
             <span>Móvil</span>
             <input class="input" name="phone" type="tel" autocomplete="tel" inputmode="tel" required value={values.phone} />
-          </label>
-          <label class="field">
-            <span>Correo <small>(si quieres)</small></span>
-            <input class="input" name="email" type="email" autocomplete="email" value={values.email} />
           </label>
           <label class="field">
             <span>¿De parte de quién vienes?</span>
