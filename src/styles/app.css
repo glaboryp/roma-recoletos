@@ -1,0 +1,66 @@
+.app { font-size: 16px; background: var(--paper); }
+.topbar {
+  display: flex; align-items: center; gap: 12px 32px; flex-wrap: wrap;
+  padding: 12px var(--margin); background: var(--paper-deep);
+}
+.brand { font: 400 26px/1 var(--display); text-transform: uppercase; color: var(--wine); text-decoration: none; }
+.topbar nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.topbar nav a { padding: 8px 12px; text-decoration: none; font-weight: 700; font-size: 15px; transition: background-color 160ms var(--ease); }
+.topbar nav a:hover { background: var(--paper); }
+.topbar nav a[aria-current='page'] { background: var(--ink); color: var(--paper); }
+.who { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 600; }
+
+.canvas { max-width: 1240px; margin: 0 auto; padding: 40px var(--margin) 96px; display: grid; gap: 48px; }
+.title-row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 32px; }
+.title-row h1 { font: 400 clamp(36px, 4vw, 48px)/1 var(--display); text-transform: uppercase; color: var(--wine); }
+.finding { font-size: 18px; font-weight: 600; margin-top: 8px; }
+.block { display: grid; gap: 16px; }
+.block > h2 { font: 400 28px/1.1 var(--display); text-transform: uppercase; }
+.muted { color: var(--ink-soft); }
+
+.ledger { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding: 24px 28px; background: var(--paper-raised); font-size: 20px; font-weight: 600; }
+.ledger .net { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 14px; }
+.ledger b { font-weight: 800; font-variant-numeric: tabular-nums; }
+.ledger strong { font: 400 64px/1 var(--display); color: var(--wine); font-variant-numeric: tabular-nums; }
+
+.table-wrap { overflow-x: auto; background: var(--paper-raised); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th { text-align: left; font-weight: 600; color: var(--ink-soft); padding: 12px 14px; white-space: nowrap; }
+td { padding: 12px 14px; border-top: 1px solid var(--paper-deep); vertical-align: top; }
+th.r, td.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td .sub { display: block; font-size: 14px; color: var(--ink-soft); }
+td strong { font-weight: 700; }
+.pill { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; font-size: 14px; font-weight: 700; white-space: nowrap; flex: none; }
+.pill.ok { background: var(--ink); color: var(--paper); }
+.pill.wait { box-shadow: inset 0 0 0 2px var(--wine); color: var(--wine); }
+.paid-form { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+td.num { white-space: nowrap; }
+fieldset.photos { border: 0; padding: 0; margin: 0; }
+.empty { padding: 32px; background: var(--paper-raised); }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.toolbar .input { min-height: 40px; padding: 6px 10px; width: auto; }
+.inline { display: inline; }
+.linkish { padding: 0; border: 0; background: none; color: var(--wine); font-weight: 700; text-decoration: underline; cursor: pointer; }
+.row-actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+
+.sheet { background: var(--paper-raised); padding: 24px; display: grid; gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 12px; align-items: end; }
+.check { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+.check input { width: 20px; height: 20px; accent-color: var(--wine); }
+.photos { display: flex; flex-wrap: wrap; gap: 12px; }
+.photos label { display: grid; gap: 6px; font-size: 14px; }
+.photos img { width: 96px; height: 96px; object-fit: cover; }
+
+@media (max-width: 760px) {
+  .grid-2, .grid-4 { grid-template-columns: 1fr; }
+  .ledger { padding: 20px; font-size: 18px; }
+  .ledger strong { font-size: 48px; }
+  table.stack thead { display: none; }
+  table.stack tr { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 14px; border-top: 1px solid var(--paper-deep); }
+  table.stack td { display: block; padding: 0; border: 0; text-align: left; }
+  table.stack td.r { text-align: right; }
+  table.stack td:first-child { grid-column: 1 / -1; color: var(--ink-soft); }
+  .who span { display: none; }
+}

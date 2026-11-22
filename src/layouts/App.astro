@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+import '../styles/app.css';
+interface Props { title: string }
+const { title } = Astro.props;
+const person = Astro.locals.person!;
+const path = Astro.url.pathname;
+const links = [
+  { href: '/panel', label: 'Mis ventas' },
+  ...(person.role === 'admin'
+    ? [
+        { href: '/admin', label: 'Pedidos' },
+        { href: '/admin/productos', label: 'Productos' },
+        { href: '/admin/personas', label: 'Personas' },
+      ]
+    : []),
+];
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title} · ¡Rumbo a Roma!</title>
+  </head>
+  <body class="app">
+    <header class="topbar">
+      <a class="brand" href="/">¡Rumbo a Roma!</a>
+      <nav aria-label="Panel">
+        {links.map((l) => <a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a>)}
+      </nav>
+      <div class="who">
+        <span>{person.name}</span>
+        <button class="btn ghost small" type="button" id="salir">Salir</button>
+      </div>
+    </header>
+    <main class="canvas">
+      <slot />
+    </main>
+    <script>
+      document.getElementById('salir')!.addEventListener('click', async () => {
+        await fetch('/api/auth/sign-out', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+        location.href = '/';
+      });
+    </script>
+  </body>
+</html>

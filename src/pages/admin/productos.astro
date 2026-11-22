@@ -1,0 +1,87 @@
+---
+import { put } from '@vercel/blob';
+import App from '../../layouts/App.astro';
+import ProductForm from '../../components/ProductForm.astro';
+import { q, one, type Product } from '../../lib/db.ts';
+import { parseTiers, parseEuros, formatTiers, euros } from '../../lib/pricing.ts';
+import { slug } from '../../lib/muestras.ts';
+
+let error = '';
+let saved = Astro.url.searchParams.get('ok');
+
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const id = Number(f.get('id')) || null;
+  const name = String(f.get('name') ?? '').trim();
+  const tiers = parseTiers(String(f.get('tiers') ?? ''));
+  const cost = parseEuros(String(f.get('cost') ?? ''));
+  const variants = String(f.get('variants') ?? '').split(',').map((v) => v.trim()).filter(Boolean);
+  const files = (f.getAll('photos') as File[]).filter((file) => file.size > 0);
+  const remove = f.getAll('remove').map(String);
+  const current = id ? await one<Product>('select * from products where id = $1', [id]) : undefined;
+
+  if (!name) error = 'El producto necesita un nombre.';
+  else if (!tiers) error = 'Revisa los precios: escribe cantidad x precio, por ejemplo "1x9, 2x16". Tiene que haber precio para 1.';
+  else if (cost === null) error = 'Revisa el coste: un número en euros, por ejemplo 1,5.';
+  else if (id && !current) error = 'Ese producto ya no existe.';
+  else if (files.some((file) => !file.type.startsWith('image/') || file.size > 4_000_000)) error = 'Las fotos tienen que ser imágenes de menos de 4 MB.';
+  else if (files.length && !process.env.BLOB_READ_WRITE_TOKEN) error = 'Falta conectar Vercel Blob (BLOB_READ_WRITE_TOKEN) para poder subir fotos.';
+  else {
+    const uploaded: string[] = [];
+    for (const file of files) {
+      const blob = await put(`productos/${slug(name)}-${file.name}`, file, { access: 'public', addRandomSuffix: true });
+      uploaded.push(blob.url);
+    }
+    const images = [...(current?.images ?? []).filter((src) => !remove.includes(src)), ...uploaded];
+    const params = [name, String(f.get('description') ?? '').trim(), JSON.stringify(tiers), cost, variants, images, f.get('active') === 'on'];
+    const row = id
+      ? await one<{ id: number }>('update products set name=$1, description=$2, tiers=$3, cost_cents=$4, variants=$5, images=$6, active=$7 where id=$8 returning id', [...params, id])
+      : await one<{ id: number }>('insert into products (name, description, tiers, cost_cents, variants, images, active, position) values ($1,$2,$3,$4,$5,$6,$7,(select coalesce(max(position),0)+1 from products)) returning id', params);
+    return Astro.redirect(`/admin/productos?ok=${row!.id}#p${row!.id}`, 303);
+  }
+  saved = null;
+}
+
+const products = await q<Product>('select * from products order by position, id');
+---
+<App title="Productos">
+  <div class="title-row">
+    <div>
+      <h1>Productos</h1>
+      <p class="finding">Los cambios de precio valen para los pedidos nuevos; los pedidos ya hechos guardan su total y su coste.</p>
+    </div>
+    <a class="btn small" href="#nuevo">Añadir producto</a>
+  </div>
+  {error && <p class="notice" role="alert">{error}</p>}
+  {saved && <p class="notice ok" role="status">Guardado.</p>}
+
+  {products.map((p) => (
+    <section class="block" aria-labelledby={`h${p.id}`}>
+      <h2 id={`h${p.id}`}>{p.name} <span class="muted">· {formatTiers(p.tiers)} · coste {euros(p.cost_cents)}{!p.active && ' · oculto'}</span></h2>
+      <ProductForm product={p} />
+    </section>
+  ))}
+
+  <section class="block" aria-labelledby="new-h">
+    <h2 id="new-h">Producto nuevo</h2>
+    <ProductForm />
+  </section>
+</App>
+
+<script>
+  // Phone photos are often over the 4 MB upload limit: shrink them to 1600px WebP before sending.
+  for (const input of document.querySelectorAll<HTMLInputElement>('input[data-shrink]')) {
+    input.addEventListener('change', async () => {
+      const out = new DataTransfer();
+      for (const file of input.files ?? []) {
+        const bmp = await createImageBitmap(file);
+        const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+        const canvas = new OffscreenCanvas(Math.round(bmp.width * scale), Math.round(bmp.height * scale));
+        canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+        const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.82 });
+        out.items.add(new File([blob], file.name.replace(/\.\w+$/, '') + '.webp', { type: 'image/webp' }));
+      }
+      input.files = out.files;
+    });
+  }
+</script>

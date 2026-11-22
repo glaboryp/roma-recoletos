@@ -1,0 +1,54 @@
+---
+import type { Product } from '../lib/db.ts';
+
+interface Props { product?: Product }
+const { product: p } = Astro.props;
+const tiersText = p ? p.tiers.map((t) => `${t.qty}x${String(t.cents / 100).replace('.', ',')}`).join(', ') : '';
+const id = p ? `p${p.id}` : 'nuevo';
+---
+<form method="post" enctype="multipart/form-data" class="sheet" id={id}>
+  <input type="hidden" name="id" value={p?.id ?? ''} />
+  <div class="grid-2">
+    <label class="field">
+      <span>Nombre</span>
+      <input class="input" name="name" required value={p?.name ?? ''} />
+    </label>
+    <label class="field">
+      <span>Variantes <small>(colores o estampados, separados por comas; vacío si no hay)</small></span>
+      <input class="input" name="variants" value={p?.variants.join(', ') ?? ''} placeholder="Negro, Granate, Azul" />
+    </label>
+  </div>
+  <label class="field">
+    <span>Descripción</span>
+    <textarea class="input" name="description">{p?.description ?? ''}</textarea>
+  </label>
+  <div class="grid-2">
+    <label class="field">
+      <span>Precios de venta <small>(cantidad x precio: "1x9, 2x16")</small></span>
+      <input class="input" name="tiers" required value={tiersText} placeholder="1x14" />
+    </label>
+    <label class="field">
+      <span>Coste por unidad (€) <small>(lo que nos cuesta comprarlo)</small></span>
+      <input class="input" name="cost" required inputmode="decimal" value={p ? String(p.cost_cents / 100).replace('.', ',') : ''} placeholder="5" />
+    </label>
+  </div>
+  {p && p.images.length > 0 && (
+    <fieldset class="photos">
+      <legend class="sr-only">Fotos actuales</legend>
+      {p.images.map((src, i) => (
+        <label>
+          <img src={src} alt={`Foto ${i + 1} de ${p.name}`} width="96" height="96" />
+          <span class="check"><input type="checkbox" name="remove" value={src} /> Quitar</span>
+        </label>
+      ))}
+    </fieldset>
+  )}
+  <label class="field">
+    <span>Añadir fotos <small>(la primera foto es la portada)</small></span>
+    <input class="input" type="file" name="photos" accept="image/*" multiple data-shrink />
+  </label>
+  <div class="toolbar">
+    <label class="check"><input type="checkbox" name="active" checked={p ? p.active : true} /> Se ve en la tienda</label>
+    <button class="btn small" type="submit">{p ? 'Guardar cambios' : 'Añadir producto'}</button>
+  </div>
+</form>
