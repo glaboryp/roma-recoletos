@@ -1,0 +1,75 @@
+---
+import App from '../layouts/App.astro';
+import { listOrders, describe, shortDate } from '../lib/orders.ts';
+import { euros } from '../lib/pricing.ts';
+
+const me = Astro.locals.person!;
+const orders = await listOrders('where o.seller_id = $1', [me.id]);
+const sold = orders.reduce((s, o) => s + o.total_cents, 0);
+const cost = orders.reduce((s, o) => s + o.cost_cents, 0);
+const unpaid = orders.filter((o) => !o.paid);
+const link = new URL(`/?de=${me.id}`, Astro.url).href;
+---
+<App title="Mis ventas">
+  <div class="title-row">
+    <div>
+      <h1>Hola, {me.name.split(' ')[0]}</h1>
+      <p class="finding">
+        {orders.length === 0
+          ? 'Aún no tienes pedidos. Comparte tu enlace y aparecerán aquí.'
+          : unpaid.length
+            ? `${unpaid.length} ${unpaid.length === 1 ? 'pedido sigue' : 'pedidos siguen'} sin Bizum (${euros(unpaid.reduce((s, o) => s + o.total_cents, 0))}).`
+            : 'Todos tus pedidos están pagados.'}
+      </p>
+    </div>
+  </div>
+
+  <p class="ledger">
+    <span>Vendido <b>{euros(sold)}</b></span> <span>− material <b>{euros(cost)}</b></span>
+    <span class="net">te quedan <strong>{euros(sold - cost)}</strong> para tu viaje</span>
+  </p>
+
+  <section class="block" aria-labelledby="link-h">
+    <h2 id="link-h">Tu enlace</h2>
+    <p>Quien entre por aquí ya te tiene elegida en "¿De parte de quién vienes?".</p>
+    <div class="toolbar">
+      <input class="input" readonly value={link} aria-label="Tu enlace" style="flex:1 1 280px" />
+      <button class="btn small" type="button" data-copy={link}>Copiar enlace</button>
+      <a class="btn ghost small" href={`https://wa.me/?text=${encodeURIComponent(`¡Vamos a Roma esta Semana Santa! Ayúdanos comprando fajines o calcetines: ${link}`)}`}>Enviar por WhatsApp</a>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="orders-h">
+    <h2 id="orders-h">Tus pedidos <span class="muted">({orders.length})</span></h2>
+    {orders.length === 0 ? (
+      <p class="empty">Cuando alguien haga un pedido de tu parte saldrá aquí, con su teléfono y lo que ha pedido.</p>
+    ) : (
+      <div class="table-wrap">
+        <table class="stack">
+          <thead><tr><th>Fecha</th><th>Quién</th><th>Qué</th><th class="r">Total</th><th class="r">Material</th><th>Bizum</th></tr></thead>
+          <tbody>
+            {orders.map((o) => (
+              <tr>
+                <td class="num">{shortDate(o.created_at)}</td>
+                <td><strong>{o.buyer_name}</strong>{o.buyer_phone && <a class="sub" href={`tel:${o.buyer_phone}`}>{o.buyer_phone}</a>}</td>
+                <td>{describe(o.items)}{o.notes && <span class="sub">{o.notes}</span>}</td>
+                <td class="r"><strong>{euros(o.total_cents)}</strong></td>
+                <td class="r muted">{euros(o.cost_cents)}</td>
+                <td>{o.paid ? <span class="pill ok">Pagado</span> : <span class="pill wait">Pendiente</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </section>
+</App>
+
+<script>
+  document.querySelector<HTMLButtonElement>('[data-copy]')?.addEventListener('click', async (e) => {
+    const b = e.currentTarget as HTMLButtonElement;
+    await navigator.clipboard.writeText(b.dataset.copy!);
+    b.textContent = 'Copiado';
+    setTimeout(() => (b.textContent = 'Copiar enlace'), 2000);
+  });
+</script>

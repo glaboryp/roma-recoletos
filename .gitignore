@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+.vercel/
+.env
+.taste-skill/
+.impeccable/review/
+scripts/pedidos-formulario.json

@@ -1,0 +1,76 @@
+---
+import App from '../../layouts/App.astro';
+import { q, type Person } from '../../lib/db.ts';
+
+const me = Astro.locals.person!;
+let error = '';
+
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const id = Number(f.get('id')) || null;
+  const name = String(f.get('name') ?? '').trim();
+  const email = String(f.get('email') ?? '').trim().toLowerCase() || null;
+  const role = f.get('role') === 'admin' ? 'admin' : 'seller';
+  const active = id ? f.get('active') === 'on' : true;
+
+  if (!name) error = 'Escribe el nombre.';
+  else if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) error = `"${email}" no parece un correo.`;
+  else if (id === me.id && (role !== 'admin' || !active)) error = 'No puedes quitarte a ti misma el acceso de gestión.';
+  else {
+    try {
+      if (id) await q('update people set name=$1, email=$2, role=$3, active=$4 where id=$5', [name, email, role, active, id]);
+      else await q('insert into people (name, email, role) values ($1, $2, $3)', [name, email, role]);
+      return Astro.redirect('/admin/personas', 303);
+    } catch (e: any) {
+      if (e.code !== '23505') throw e;
+      error = `El correo ${email} ya lo tiene otra persona.`;
+    }
+  }
+}
+
+const people = await q<Person & { orders: number }>(
+  'select p.*, (select count(*)::int from orders o where o.seller_id = p.id) orders from people p order by p.active desc, p.name',
+);
+---
+<App title="Personas">
+  <div class="title-row">
+    <div>
+      <h1>Personas</h1>
+      <p class="finding">Cada persona sale en "¿De parte de quién vienes?". Con su Gmail puede entrar: las de gestión ven todo, las vendedoras solo lo suyo.</p>
+    </div>
+  </div>
+  {error && <p class="notice" role="alert">{error}</p>}
+
+  <section class="block" aria-labelledby="new-h">
+    <h2 id="new-h">Añadir una persona</h2>
+    <form method="post" class="sheet grid-4">
+      <label class="field"><span>Nombre y apellidos</span><input class="input" name="name" required /></label>
+      <label class="field"><span>Gmail <small>(para entrar)</small></span><input class="input" name="email" type="email" /></label>
+      <label class="field"><span>Rol</span>
+        <select class="input" name="role"><option value="seller">Vendedora</option><option value="admin">Gestión</option></select>
+      </label>
+      <button class="btn" type="submit">Añadir</button>
+    </form>
+  </section>
+
+  <section class="block" aria-labelledby="list-h">
+    <h2 id="list-h">Todas <span class="muted">({people.length})</span></h2>
+    {people.map((p) => (
+      <form method="post" class="sheet grid-4">
+        <input type="hidden" name="id" value={p.id} />
+        <label class="field"><span>Nombre <small>· {p.orders} {p.orders === 1 ? 'pedido' : 'pedidos'}</small></span><input class="input" name="name" required value={p.name} /></label>
+        <label class="field"><span>Gmail</span><input class="input" name="email" type="email" value={p.email ?? ''} placeholder="Sin correo: no puede entrar" /></label>
+        <label class="field"><span>Rol</span>
+          <select class="input" name="role">
+            <option value="seller" selected={p.role === 'seller'}>Vendedora</option>
+            <option value="admin" selected={p.role === 'admin'}>Gestión</option>
+          </select>
+        </label>
+        <div class="row-actions">
+          <label class="check"><input type="checkbox" name="active" checked={p.active} /> Activa</label>
+          <button class="btn ghost small" type="submit">Guardar</button>
+        </div>
+      </form>
+    ))}
+  </section>
+</App>

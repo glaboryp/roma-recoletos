@@ -1,0 +1,149 @@
+---
+import App from '../../layouts/App.astro';
+import { q, setting, type Person } from '../../lib/db.ts';
+import { listOrders, describe, shortDate, isUuid } from '../../lib/orders.ts';
+import { euros } from '../../lib/pricing.ts';
+
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const action = f.get('action');
+  const id = String(f.get('id') ?? '');
+  if (action === 'paid' && isUuid(id)) await q('update orders set paid = $2 where id = $1', [id, f.get('paid') === 'true']);
+  if (action === 'delete' && isUuid(id)) await q('delete from orders where id = $1', [id]);
+  if (action === 'bizum') {
+    await q(`insert into settings (key, value) values ('bizum', $1) on conflict (key) do update set value = excluded.value`, [String(f.get('bizum') ?? '').trim().slice(0, 40)]);
+  }
+  return Astro.redirect(Astro.url.pathname + Astro.url.search, 303);
+}
+
+const de = Astro.url.searchParams.get('de') ?? '';
+const estado = Astro.url.searchParams.get('estado') ?? '';
+const all = await listOrders();
+const orders = all.filter((o) => (!de || String(o.seller_id) === de) && (estado === 'pendientes' ? !o.paid : estado === 'pagados' ? o.paid : true));
+const people = await q<Person>('select * from people order by name');
+const bizum = await setting('bizum');
+
+const sum = (list: typeof all, k: 'total_cents' | 'cost_cents') => list.reduce((s, o) => s + o[k], 0);
+const unpaid = all.filter((o) => !o.paid);
+const bySeller = people
+  .map((p) => {
+    const mine = all.filter((o) => o.seller_id === p.id);
+    return { ...p, n: mine.length, sold: sum(mine, 'total_cents'), cost: sum(mine, 'cost_cents'), pending: sum(mine.filter((o) => !o.paid), 'total_cents') };
+  })
+  .filter((p) => p.n > 0 || p.active)
+  .sort((a, b) => b.sold - a.sold);
+---
+<App title="Pedidos">
+  <div class="title-row">
+    <div>
+      <h1>Pedidos</h1>
+      <p class="finding">
+        {unpaid.length ? `Faltan ${euros(sum(unpaid, 'total_cents'))} de Bizum en ${unpaid.length} ${unpaid.length === 1 ? 'pedido' : 'pedidos'}.` : 'Todos los Bizum han llegado.'}
+      </p>
+    </div>
+    <form method="post" class="toolbar">
+      <input type="hidden" name="action" value="bizum" />
+      <label class="field">
+        <span>Número de Bizum</span>
+        <input class="input" name="bizum" value={bizum} inputmode="tel" placeholder="600 000 000" />
+      </label>
+      <button class="btn small" type="submit">Guardar</button>
+    </form>
+  </div>
+  {!bizum && <p class="notice">Falta el número de Bizum: hasta que lo pongas, a los compradores les decimos que se lo pidan a su vendedora.</p>}
+
+  <p class="ledger">
+    <span>Vendido <b>{euros(sum(all, 'total_cents'))}</b></span> <span>− material <b>{euros(sum(all, 'cost_cents'))}</b></span>
+    <span class="net">te quedan <strong>{euros(sum(all, 'total_cents') - sum(all, 'cost_cents'))}</strong> para el viaje</span>
+  </p>
+
+  <section class="block" aria-labelledby="sellers-h">
+    <h2 id="sellers-h">Por vendedora</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Vendedora</th><th class="r">Pedidos</th><th class="r">Vendido</th><th class="r">Material</th><th class="r">Para su viaje</th><th class="r">Bizum pendiente</th></tr></thead>
+        <tbody>
+          {bySeller.map((p) => (
+            <tr>
+              <td><a href={`/admin?de=${p.id}`}><strong>{p.name}</strong></a></td>
+              <td class="r">{p.n}</td>
+              <td class="r">{euros(p.sold)}</td>
+              <td class="r muted">{euros(p.cost)}</td>
+              <td class="r"><strong>{euros(p.sold - p.cost)}</strong></td>
+              <td class="r">{p.pending ? euros(p.pending) : <span class="muted">—</span>}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="orders-h">
+    <h2 id="orders-h">Todos los pedidos <span class="muted">({orders.length})</span></h2>
+    <form class="toolbar" method="get">
+      <label class="field">
+        <span>Vendedora</span>
+        <select class="input" name="de">
+          <option value="">Todas</option>
+          {people.map((p) => <option value={p.id} selected={String(p.id) === de}>{p.name}</option>)}
+        </select>
+      </label>
+      <label class="field">
+        <span>Bizum</span>
+        <select class="input" name="estado">
+          <option value="">Todos</option>
+          <option value="pendientes" selected={estado === 'pendientes'}>Pendientes</option>
+          <option value="pagados" selected={estado === 'pagados'}>Pagados</option>
+        </select>
+      </label>
+      <button class="btn ghost small" type="submit">Filtrar</button>
+      {(de || estado) && <a href="/admin">Quitar filtros</a>}
+    </form>
+    {orders.length === 0 ? (
+      <p class="empty">No hay pedidos con estos filtros.</p>
+    ) : (
+      <div class="table-wrap">
+        <table class="stack">
+          <thead><tr><th>Fecha</th><th>Quién</th><th>De parte de</th><th>Qué</th><th class="r">Total</th><th>Bizum</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+          <tbody>
+            {orders.map((o) => (
+              <tr>
+                <td class="num">{shortDate(o.created_at)}</td>
+                <td>
+                  <strong>{o.buyer_name}</strong>
+                  {o.buyer_phone && <a class="sub" href={`tel:${o.buyer_phone}`}>{o.buyer_phone}</a>}
+                  {o.buyer_email && <span class="sub">{o.buyer_email}</span>}
+                </td>
+                <td>{o.seller_name}</td>
+                <td>{describe(o.items)}{o.notes && <span class="sub">{o.notes}</span>}</td>
+                <td class="r"><strong>{euros(o.total_cents)}</strong><span class="sub">material {euros(o.cost_cents)}</span></td>
+                <td>
+                  <form method="post" class="paid-form">
+                    <input type="hidden" name="action" value="paid" />
+                    <input type="hidden" name="id" value={o.id} />
+                    <input type="hidden" name="paid" value={String(!o.paid)} />
+                    {o.paid ? <span class="pill ok">Pagado</span> : <span class="pill wait">Pendiente</span>}
+                    <button class="linkish" type="submit">{o.paid ? 'Deshacer' : 'Marcar pagado'}</button>
+                  </form>
+                </td>
+                <td class="r">
+                  <form method="post" class="inline" data-confirm={`¿Borrar el pedido de ${o.buyer_name}? No se puede deshacer.`}>
+                    <input type="hidden" name="action" value="delete" />
+                    <input type="hidden" name="id" value={o.id} />
+                    <button class="linkish" type="submit">Borrar</button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </section>
+</App>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('form[data-confirm]').forEach((f) =>
+    f.addEventListener('submit', (e) => { if (!confirm(f.dataset.confirm!)) e.preventDefault(); }),
+  );
+</script>

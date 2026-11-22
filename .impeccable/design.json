@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-22T16:45:14.348006+00:00",
+  "title": "Design System: ¡Rumbo a Roma!",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cream Paper",
+        "canonical": "#f3e5cf",
+        "tonalRamp": [
+          "oklch(15% 0.033 79.3)",
+          "oklch(25% 0.033 79.3)",
+          "oklch(35% 0.033 79.3)",
+          "oklch(47% 0.033 79.3)",
+          "oklch(60% 0.033 79.3)",
+          "oklch(72% 0.033 79.3)",
+          "oklch(84% 0.033 79.3)",
+          "oklch(95% 0.033 79.3)"
+        ]
+      },
+      "paper-deep": {
+        "role": "neutral",
+        "displayName": "Deep Paper",
+        "canonical": "#e8d4b5",
+        "tonalRamp": [
+          "oklch(15% 0.047 78.8)",
+          "oklch(25% 0.047 78.8)",
+          "oklch(35% 0.047 78.8)",
+          "oklch(47% 0.047 78.8)",
+          "oklch(60% 0.047 78.8)",
+          "oklch(72% 0.047 78.8)",
+          "oklch(84% 0.047 78.8)",
+          "oklch(95% 0.047 78.8)"
+        ]
+      },
+      "paper-raised": {
+        "role": "neutral",
+        "displayName": "Raised Paper",
+        "canonical": "#faf2e4",
+        "tonalRamp": [
+          "oklch(15% 0.020 81.8)",
+          "oklch(25% 0.020 81.8)",
+          "oklch(35% 0.020 81.8)",
+          "oklch(47% 0.020 81.8)",
+          "oklch(60% 0.020 81.8)",
+          "oklch(72% 0.020 81.8)",
+          "oklch(84% 0.020 81.8)",
+          "oklch(95% 0.020 81.8)"
+        ]
+      },
+      "ink": {
+        "role": "secondary",
+        "displayName": "Navy Ink",
+        "canonical": "#22304d",
+        "tonalRamp": [
+          "oklch(15% 0.056 263.9)",
+          "oklch(25% 0.056 263.9)",
+          "oklch(35% 0.056 263.9)",
+          "oklch(47% 0.056 263.9)",
+          "oklch(60% 0.056 263.9)",
+          "oklch(72% 0.056 263.9)",
+          "oklch(84% 0.056 263.9)",
+          "oklch(95% 0.056 263.9)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#4a5573",
+        "tonalRamp": [
+          "oklch(15% 0.051 268.7)",
+          "oklch(25% 0.051 268.7)",
+          "oklch(35% 0.051 268.7)",
+          "oklch(47% 0.051 268.7)",
+          "oklch(60% 0.051 268.7)",
+          "oklch(72% 0.051 268.7)",
+          "oklch(84% 0.051 268.7)",
+          "oklch(95% 0.051 268.7)"
+        ]
+      },
+      "wine": {
+        "role": "primary",
+        "displayName": "Poster Wine",
+        "canonical": "#6b1517",
+        "tonalRamp": [
+          "oklch(15% 0.119 24.9)",
+          "oklch(25% 0.119 24.9)",
+          "oklch(35% 0.119 24.9)",
+          "oklch(47% 0.119 24.9)",
+          "oklch(60% 0.119 24.9)",
+          "oklch(72% 0.119 24.9)",
+          "oklch(84% 0.119 24.9)",
+          "oklch(95% 0.119 24.9)"
+        ]
+      },
+      "wine-deep": {
+        "role": "primary",
+        "displayName": "Pressed Wine",
+        "canonical": "#521012",
+        "tonalRamp": [
+          "oklch(15% 0.097 24.1)",
+          "oklch(25% 0.097 24.1)",
+          "oklch(35% 0.097 24.1)",
+          "oklch(47% 0.097 24.1)",
+          "oklch(60% 0.097 24.1)",
+          "oklch(72% 0.097 24.1)",
+          "oklch(84% 0.097 24.1)",
+          "oklch(95% 0.097 24.1)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Kraft Line",
+        "canonical": "#dcc6a4",
+        "tonalRamp": [
+          "oklch(15% 0.052 78.7)",
+          "oklch(25% 0.052 78.7)",
+          "oklch(35% 0.052 78.7)",
+          "oklch(47% 0.052 78.7)",
+          "oklch(60% 0.052 78.7)",
+          "oklch(72% 0.052 78.7)",
+          "oklch(84% 0.052 78.7)",
+          "oklch(95% 0.052 78.7)"
+        ]
+      },
+      "ok": {
+        "role": "status",
+        "displayName": "Leaf",
+        "canonical": "#2f5d34",
+        "tonalRamp": [
+          "oklch(15% 0.084 146.3)",
+          "oklch(25% 0.084 146.3)",
+          "oklch(35% 0.084 146.3)",
+          "oklch(47% 0.084 146.3)",
+          "oklch(60% 0.084 146.3)",
+          "oklch(72% 0.084 146.3)",
+          "oklch(84% 0.084 146.3)",
+          "oklch(95% 0.084 146.3)"
+        ]
+      },
+      "ok-tint": {
+        "role": "status",
+        "displayName": "Leaf Tint",
+        "canonical": "#dbe7cf",
+        "tonalRamp": [
+          "oklch(15% 0.035 128.9)",
+          "oklch(25% 0.035 128.9)",
+          "oklch(35% 0.035 128.9)",
+          "oklch(47% 0.035 128.9)",
+          "oklch(60% 0.035 128.9)",
+          "oklch(72% 0.035 128.9)",
+          "oklch(84% 0.035 128.9)",
+          "oklch(95% 0.035 128.9)"
+        ]
+      },
+      "warn-tint": {
+        "role": "status",
+        "displayName": "Blush",
+        "canonical": "#f3d9c9",
+        "tonalRamp": [
+          "oklch(15% 0.036 53.7)",
+          "oklch(25% 0.036 53.7)",
+          "oklch(35% 0.036 53.7)",
+          "oklch(47% 0.036 53.7)",
+          "oklch(60% 0.036 53.7)",
+          "oklch(72% 0.036 53.7)",
+          "oklch(84% 0.036 53.7)",
+          "oklch(95% 0.036 53.7)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero h1 and confirmation h1, Anton uppercase."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Shop section titles and the login title."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Product names, panel page titles, summary and recap titles, big totals."
+      },
+      "price": {
+        "displayName": "Hand-lettered Price",
+        "purpose": "Prices only, uppercase Gochi Hand, as on the poster."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Shop running text, 46-52ch."
+      },
+      "body-app": {
+        "displayName": "Body (panels)",
+        "purpose": "Seller and admin panels."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels, nav links, small UI text."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "The lowercase 'recoletos' signature in the footer."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-bar",
+        "value": "0 10px 30px rgb(34 48 77 / 0.3)",
+        "purpose": "The fixed basket bar only; nothing at rest casts a shadow."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Shared easing for every transition."
+      },
+      {
+        "name": "state",
+        "value": "160ms",
+        "purpose": "Hover and press colour changes."
+      },
+      {
+        "name": "swap",
+        "value": "240ms",
+        "purpose": "Preview cross-fade and swatch scale."
+      },
+      {
+        "name": "bar-rise",
+        "value": "320ms",
+        "purpose": "Basket bar entrance."
+      },
+      {
+        "name": "rise",
+        "value": "700ms",
+        "purpose": "Section entrances, children staggered 80ms."
+      },
+      {
+        "name": "wall-drift",
+        "value": "60s linear infinite alternate",
+        "purpose": "Specimen wall rows drift sideways; off under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "600px"
+      },
+      {
+        "name": "panel-stack",
+        "value": "760px"
+      },
+      {
+        "name": "single-column",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action on paper: wine fill, paper text, square.",
+      "html": "<button class=\"ds-btn\">Hacer mi pedido</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 24px; border: 0; border-radius: 0; background: var(--wine, #6b1517); color: var(--paper, #f3e5cf); font: 700 18px/1.55 'Raleway Variable', Raleway, system-ui, sans-serif; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1), transform 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn:hover { background: var(--wine-deep, #521012); } .ds-btn:active { transform: translateY(1px) scale(0.99); } .ds-btn:focus-visible { outline: 3px solid var(--wine, #6b1517); outline-offset: 3px; }"
+    },
+    {
+      "name": "Light Button",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "Action on a wine or navy block.",
+      "html": "<div style=\"background:#6b1517;padding:24px\"><button class=\"ds-btn-light\">Copiar el número</button></div>",
+      "css": ".ds-btn-light { min-height: 48px; padding: 0 24px; border: 0; border-radius: 0; background: var(--paper, #f3e5cf); color: var(--ink, #22304d); font: 700 18px/1.55 'Raleway Variable', Raleway, system-ui, sans-serif; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-light:hover { background: var(--paper-raised, #faf2e4); } .ds-btn-light:focus-visible { outline: 3px solid var(--paper, #f3e5cf); outline-offset: 3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action: 2px inset ring in currentColor.",
+      "html": "<button class=\"ds-btn-ghost\">Filtrar</button>",
+      "css": ".ds-btn-ghost { min-height: 36px; padding: 0 14px; border: 0; border-radius: 0; background: transparent; color: var(--ink, #22304d); box-shadow: inset 0 0 0 2px currentColor; font: 700 15px/1.55 'Raleway Variable', Raleway, system-ui, sans-serif; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-ghost:hover { background: var(--paper-deep, #e8d4b5); } .ds-btn-ghost:focus-visible { outline: 3px solid var(--wine, #6b1517); outline-offset: 3px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Raised-paper field with stacked bold label.",
+      "html": "<label class=\"ds-field\"><span>Móvil</span><input class=\"ds-input\" type=\"tel\" /></label>",
+      "css": ".ds-field { display: grid; gap: 6px; font-family: 'Raleway Variable', Raleway, system-ui, sans-serif; color: var(--ink, #22304d); } .ds-field > span { font-size: 15px; font-weight: 700; } .ds-input { width: 100%; min-height: 48px; padding: 10px 14px; background: var(--paper-raised, #faf2e4); border: 2px solid var(--line, #dcc6a4); border-radius: 0; font: inherit; font-size: 18px; color: inherit; transition: border-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-input:hover { border-color: var(--ink-soft, #4a5573); } .ds-input:focus { outline: none; border-color: var(--ink, #22304d); }"
+    },
+    {
+      "name": "Quantity Stepper",
+      "kind": "custom",
+      "refersTo": "stepper-on",
+      "description": "Minus / number / plus; turns wine once a quantity is chosen.",
+      "html": "<div class=\"ds-stepper ds-on\"><button aria-label=\"Quitar\"><svg viewBox=\"0 0 20 20\"><path d=\"M4 10h12\"/></svg></button><input value=\"2\" aria-label=\"Cantidad\" /><button aria-label=\"Añadir\"><svg viewBox=\"0 0 20 20\"><path d=\"M4 10h12M10 4v12\"/></svg></button></div>",
+      "css": ".ds-stepper { display: inline-flex; align-items: center; background: var(--paper-raised, #faf2e4); color: var(--ink, #22304d); } .ds-stepper button { display: grid; place-items: center; width: 40px; height: 44px; border: 0; background: transparent; color: inherit; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-stepper button:hover { background: var(--paper-deep, #e8d4b5); } .ds-stepper svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; } .ds-stepper input { width: 34px; height: 44px; text-align: center; border: 0; background: transparent; color: inherit; font: 800 18px 'Raleway Variable', Raleway, sans-serif; font-variant-numeric: tabular-nums; } .ds-stepper.ds-on { background: var(--wine, #6b1517); color: var(--paper, #f3e5cf); } .ds-stepper.ds-on button:hover { background: var(--wine-deep, #521012); } .ds-stepper button:focus-visible { outline: 3px solid var(--wine, #6b1517); outline-offset: 3px; }"
+    },
+    {
+      "name": "App Top Bar",
+      "kind": "nav",
+      "description": "Panel navigation on deep paper with Anton wordmark.",
+      "html": "<header class=\"ds-topbar\"><a class=\"ds-brand\" href=\"#\">¡Rumbo a Roma!</a><nav><a href=\"#\" aria-current=\"page\">Pedidos</a><a href=\"#\">Productos</a><a href=\"#\">Personas</a></nav></header>",
+      "css": ".ds-topbar { display: flex; align-items: center; gap: 12px 32px; flex-wrap: wrap; padding: 12px 24px; background: var(--paper-deep, #e8d4b5); color: var(--ink, #22304d); font-family: 'Raleway Variable', Raleway, sans-serif; } .ds-brand { font: 400 26px/1 Anton, 'Arial Narrow', sans-serif; text-transform: uppercase; color: var(--wine, #6b1517); text-decoration: none; } .ds-topbar nav { display: flex; gap: 4px; } .ds-topbar nav a { padding: 8px 12px; text-decoration: none; color: inherit; font-weight: 700; font-size: 15px; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-topbar nav a:hover { background: var(--paper, #f3e5cf); } .ds-topbar nav a[aria-current='page'] { background: var(--ink, #22304d); color: var(--paper, #f3e5cf); } .ds-topbar a:focus-visible { outline: 3px solid var(--wine, #6b1517); outline-offset: 3px; }"
+    },
+    {
+      "name": "Payment Pills",
+      "kind": "chip",
+      "refersTo": "pill-paid",
+      "description": "Bizum state in tables: navy fill when paid, wine ring when pending.",
+      "html": "<span class=\"ds-pill ds-ok\">Pagado</span> <span class=\"ds-pill ds-wait\">Pendiente</span>",
+      "css": ".ds-pill { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; font: 700 14px 'Raleway Variable', Raleway, sans-serif; } .ds-ok { background: var(--ink, #22304d); color: var(--paper, #f3e5cf); } .ds-wait { box-shadow: inset 0 0 0 2px var(--wine, #6b1517); color: var(--wine, #6b1517); }"
+    },
+    {
+      "name": "Order Summary",
+      "kind": "card",
+      "refersTo": "summary-panel",
+      "description": "Navy sheet with live lines, Anton total and paper button.",
+      "html": "<aside class=\"ds-summary\"><h2>Tu pedido</h2><p class=\"ds-line\"><span>Calcetines <small>2 pares</small></span><span>16 €</span></p><p class=\"ds-total\"><span>Total</span><strong>16 €</strong></p><button>Enviar pedido</button></aside>",
+      "css": ".ds-summary { display: grid; gap: 20px; padding: 32px; background: var(--ink, #22304d); color: var(--paper, #f3e5cf); font: 500 16px/1.55 'Raleway Variable', Raleway, sans-serif; } .ds-summary h2 { margin: 0; font: 400 48px/1 Anton, 'Arial Narrow', sans-serif; text-transform: uppercase; } .ds-line, .ds-total { margin: 0; display: flex; justify-content: space-between; gap: 16px; font-weight: 600; } .ds-line small { display: block; font-size: 15px; font-weight: 500; opacity: 0.85; } .ds-total { align-items: baseline; } .ds-total strong { font: 400 48px/1 Anton, 'Arial Narrow', sans-serif; font-variant-numeric: tabular-nums; } .ds-summary button { min-height: 48px; border: 0; border-radius: 0; background: var(--paper, #f3e5cf); color: var(--wine, #6b1517); font: 700 18px 'Raleway Variable', Raleway, sans-serif; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-summary button:hover { background: var(--paper-raised, #faf2e4); } .ds-summary button:focus-visible { outline: 3px solid var(--paper, #f3e5cf); outline-offset: 3px; }"
+    },
+    {
+      "name": "Hand-lettered Price",
+      "kind": "custom",
+      "description": "Product name in Anton with its price line in Gochi Hand.",
+      "html": "<div class=\"ds-cat-head\"><h3>Calcetines</h3><p>1 × 9 € · 2 × 16 €</p></div>",
+      "css": ".ds-cat-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; color: var(--ink, #22304d); } .ds-cat-head h3 { margin: 0; font: 400 48px/1 Anton, 'Arial Narrow', sans-serif; text-transform: uppercase; } .ds-cat-head p { margin: 0; font: 400 38px/1.1 'Gochi Hand', cursive; letter-spacing: 0.06em; text-transform: uppercase; color: var(--wine, #6b1517); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Poster on the Specimen Wall",
+    "overview": "The world is the client's own poster, \"¡Rumbo a Roma!\", lifted off the noticeboard: cream paper, a wine headline in condensed heavy caps, navy text, prices lettered by hand, and the \"recoletos / -centro universitario-\" signature. Everything else is the girls' own photographs of the socks and sashes, used as material rather than decoration: tiled into a wall, swapped into a large frame, run edge to edge in a strip.\n\nSurfaces are flat sheets of paper in three tones laid on top of each other. Blocks of solid wine and navy act as the poster's ink: the order summary, the thanks band, the payment half of the confirmation, the footer. Corners are square everywhere. There is one floating object, the basket bar, and it is the only thing that casts a shadow.\n\nThe public shop is generous and editorial (large type, 12-column asymmetric rows, big section gaps). The panels for sellers and admins reuse the same paper, ink and type in a dense, quiet register: Anton titles, Raleway tables, a ledger line as the one big number.",
+    "keyCharacteristics": [
+      "Cream paper ground, navy text, wine as the poster's voice.",
+      "Anton uppercase for every heading; Gochi Hand only for prices; Raleway for everything read.",
+      "Square corners, no strokes for structure; tone shifts separate regions.",
+      "Product photography is the only imagery.",
+      "Flat; a single shadow on the floating basket bar."
+    ],
+    "rules": [
+      {
+        "name": "The Three Inks Rule",
+        "body": "Paper, wine and navy carry every surface. A new region is a paper tone, a wine block or a navy block; no fourth hue enters except the two status tints.",
+        "section": "colors"
+      },
+      {
+        "name": "The Wine Is The Headline Rule",
+        "body": "Wine is for the poster's voice (headings, the main action, the selected state). Running text on paper stays navy; the one exception is the hero's poster sentence, which repeats the poster.",
+        "section": "colors"
+      },
+      {
+        "name": "The Caps Are Anton Rule",
+        "body": "Only Anton is set in capitals, plus the hand-lettered price. Raleway is never uppercased or tracked out.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hand Is For Money Rule",
+        "body": "Gochi Hand appears only on prices. It never sets a heading, a label or a sentence.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Money Rule",
+        "body": "Amounts in tables, steppers, totals and the ledger use tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Float Rule",
+        "body": "Only an element that is fixed over scrolling content gets a shadow. Everything at rest is a flat sheet.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** build new regions from the three paper tones and solid wine or navy blocks.",
+      "**Do** set every heading in Anton uppercase and every price in Gochi Hand.",
+      "**Do** use the girls' product photos as the only imagery, cropped to fixed frames.",
+      "**Do** keep corners square (0px) on every surface, button, input and image.",
+      "**Do** keep motion on the shared ease (cubic-bezier(0.16, 1, 0.3, 1)): 160ms for state, 240ms for image swaps, 700ms staggered rises, all reduced under prefers-reduced-motion."
+    ],
+    "donts": [
+      "**Don't** add rounded corners, card shadows or outlined cards; depth is tone.",
+      "**Don't** introduce a fourth hue or a gradient beyond the status tints.",
+      "**Don't** use Gochi Hand for anything but money, or uppercase Raleway.",
+      "**Don't** add stock imagery, illustrations or decorative icons; the only glyphs are functional (stepper plus/minus, the Google logo)."
+    ]
+  }
+}
