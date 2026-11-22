@@ -2,7 +2,7 @@ import { q } from './db.ts';
 
 export type OrderRow = {
   id: string; seller_id: number; seller_name: string; buyer_name: string; buyer_email: string | null;
-  buyer_phone: string | null; notes: string | null; total_cents: number; cost_cents: number; paid: boolean;
+  buyer_phone: string | null; notes: string | null; total_cents: number; cost_cents: number; paid: boolean; delivered: boolean;
   created_at: Date; items: { product: string; variant: string | null; qty: number }[];
 };
 

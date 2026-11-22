@@ -54,7 +54,7 @@ const bySeller = people
 
   <p class="ledger">
     <span>Vendido <b>{euros(sum(all, 'total_cents'))}</b></span> <span>− material <b>{euros(sum(all, 'cost_cents'))}</b></span>
-    <span class="net">te quedan <strong>{euros(sum(all, 'total_cents') - sum(all, 'cost_cents'))}</strong> para el viaje</span>
+    <span class="net">lleváis <strong>{euros(sum(all, 'total_cents') - sum(all, 'cost_cents'))}</strong> ganados para el viaje</span>
   </p>
 
   <section class="block" aria-labelledby="sellers-h">

@@ -1,14 +1,24 @@
 ---
 import App from '../layouts/App.astro';
-import { listOrders, describe, shortDate } from '../lib/orders.ts';
+import DeliveredToggle from '../components/DeliveredToggle.astro';
+import { q } from '../lib/db.ts';
+import { listOrders, describe, shortDate, isUuid } from '../lib/orders.ts';
 import { euros } from '../lib/pricing.ts';
 
 const me = Astro.locals.person!;
 if (!me.sells) return Astro.redirect('/admin');
+
+if (Astro.request.method === 'POST') {
+  const f = await Astro.request.formData();
+  const id = String(f.get('id') ?? '');
+  if (f.get('action') === 'delivered' && isUuid(id)) {
+    await q('update orders set delivered = $2 where id = $1 and seller_id = $3', [id, f.get('delivered') === 'true', me.id]);
+  }
+  return Astro.redirect('/panel', 303);
+}
 const orders = await listOrders('where o.seller_id = $1', [me.id]);
 const sold = orders.reduce((s, o) => s + o.total_cents, 0);
 const cost = orders.reduce((s, o) => s + o.cost_cents, 0);
-const unpaid = orders.filter((o) => !o.paid);
 const link = new URL(`/?de=${me.id}`, Astro.url).href;
 ---
 <App title="Mis ventas">
@@ -18,16 +28,14 @@ const link = new URL(`/?de=${me.id}`, Astro.url).href;
       <p class="finding">
         {orders.length === 0
           ? 'Aún no tienes pedidos. Comparte tu enlace y aparecerán aquí.'
-          : unpaid.length
-            ? `${unpaid.length} ${unpaid.length === 1 ? 'pedido sigue' : 'pedidos siguen'} sin Bizum (${euros(unpaid.reduce((s, o) => s + o.total_cents, 0))}).`
-            : 'Todos tus pedidos están pagados.'}
+          : `Llevas ${orders.length} ${orders.length === 1 ? 'pedido' : 'pedidos'}. ¡Gracias por vender!`}
       </p>
     </div>
   </div>
 
   <p class="ledger">
     <span>Vendido <b>{euros(sold)}</b></span> <span>− material <b>{euros(cost)}</b></span>
-    <span class="net">te quedan <strong>{euros(sold - cost)}</strong> para tu viaje</span>
+    <span class="net">llevas <strong>{euros(sold - cost)}</strong> ganados para el viaje</span>
   </p>
 
   <section class="block" aria-labelledby="link-h">
@@ -47,7 +55,7 @@ const link = new URL(`/?de=${me.id}`, Astro.url).href;
     ) : (
       <div class="table-wrap">
         <table class="stack">
-          <thead><tr><th>Fecha</th><th>Quién</th><th>Qué</th><th class="r">Total</th><th class="r">Material</th><th>Bizum</th></tr></thead>
+          <thead><tr><th>Fecha</th><th>Quién</th><th>Qué</th><th class="r">Total</th><th class="r">Material</th><th>Entrega</th></tr></thead>
           <tbody>
             {orders.map((o) => (
               <tr>
@@ -56,7 +64,7 @@ const link = new URL(`/?de=${me.id}`, Astro.url).href;
                 <td>{describe(o.items)}{o.notes && <span class="sub">{o.notes}</span>}</td>
                 <td class="r"><strong>{euros(o.total_cents)}</strong></td>
                 <td class="r muted">{euros(o.cost_cents)}</td>
-                <td>{o.paid ? <span class="pill ok">Pagado</span> : <span class="pill wait">Pendiente</span>}</td>
+                <td><DeliveredToggle id={o.id} delivered={o.delivered} /></td>
               </tr>
             ))}
           </tbody>

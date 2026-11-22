@@ -1,0 +1,11 @@
+---
+interface Props { id: string; delivered: boolean }
+const { id, delivered } = Astro.props;
+---
+<form method="post" class="paid-form">
+  <input type="hidden" name="action" value="delivered" />
+  <input type="hidden" name="id" value={id} />
+  <input type="hidden" name="delivered" value={String(!delivered)} />
+  {delivered ? <span class="pill ok">Entregado</span> : <span class="pill wait">Sin entregar</span>}
+  <button class="linkish" type="submit">{delivered ? 'Deshacer' : 'Marcar entregado'}</button>
+</form>

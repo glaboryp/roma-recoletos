@@ -42,6 +42,8 @@ create table if not exists order_items (
   qty int not null check (qty > 0)
 );
 
+alter table orders add column if not exists delivered boolean not null default false;
+
 create index if not exists orders_seller_idx on orders (seller_id);
 create index if not exists order_items_order_idx on order_items (order_id);
 
