@@ -15,6 +15,7 @@ if (Astro.request.method === 'POST') {
 
   if (!name) error = 'Escribe el nombre.';
   else if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) error = `"${email}" no parece un correo.`;
+  else if (email && !/^[^@\s]+@(gmail|googlemail)\.com$/.test(email)) error = `"${email}" no es de Gmail: para entrar hace falta una cuenta que acabe en @gmail.com.`;
   else if (id === me.id && (role !== 'admin' || !active)) error = 'No puedes quitarte a ti misma el acceso de gestión.';
   else {
     try {
@@ -45,7 +46,7 @@ const people = await q<Person & { orders: number }>(
     <h2 id="new-h">Añadir una persona</h2>
     <form method="post" class="sheet grid-4">
       <label class="field"><span>Nombre y apellidos</span><input class="input" name="name" required /></label>
-      <label class="field"><span>Gmail <small>(para entrar)</small></span><input class="input" name="email" type="email" /></label>
+      <label class="field"><span>Gmail <small>(para entrar)</small></span><input class="input" name="email" type="email" placeholder="nombre@gmail.com" /></label>
       <label class="field"><span>Rol</span>
         <select class="input" name="role"><option value="seller">Vendedora</option><option value="admin">Gestión</option></select>
       </label>
