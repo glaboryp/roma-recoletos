@@ -54,7 +54,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
   <header class="hero">
     <nav class="top" aria-label="Productos">
       <span class="mark">recoletos</span>
-      {products.map((p) => <a href={`#p-${p.id}`}>{p.name}</a>)}
+      {products.map((p) => <a class="product-link" href={`#p-${p.id}`}>{p.name}</a>)}
       <a href="/entrar">Vendedoras</a>
     </nav>
     <div class="poster">
@@ -374,7 +374,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
     .cat-intro h2, .cat-intro p { grid-column: 1 / -1; }
     .cat, .cat:nth-of-type(even) { grid-template-columns: 1fr; }
     .preview, .cat-body, .cat:nth-of-type(even) .preview, .cat:nth-of-type(even) .cat-body { grid-column: 1 / -1; order: 0; }
-    .preview-main { aspect-ratio: 4 / 3; }
+    .preview-main { aspect-ratio: auto; max-height: 80svh; }
     .items { grid-template-columns: 1fr; }
     .details-form, .summary { grid-column: 1 / -1; }
     .summary { position: static; }
@@ -382,9 +382,9 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
   }
 
   @media (max-width: 600px) {
-    .top { font-size: 14px; gap: 4px 14px; }
-    .mark { width: 100%; }
-    .poster { gap: 20px; }
+    .top { align-items: center; padding: 16px var(--margin); }
+    .top .product-link { display: none; }
+    .poster { gap: 36px; }
     .poster h1 { font-size: 19vw; }
     .lead { font-size: 18px; }
     .prices { flex-direction: column; gap: 2px; font-size: 22px; }
