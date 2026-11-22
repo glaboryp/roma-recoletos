@@ -22,18 +22,19 @@ const PRODUCTS = [
     name: 'Calcetines largos',
     description: 'Calcetines altos de canalé con hilo brillante y puño rizado.',
     tiers: socks, cost_cents: 150, variants: SOCK_COLORS,
-    images: ['/products/0011.webp', '/products/0005.webp', '/products/0007.webp', '/products/0009.webp', '/products/0004.webp'],
+    images: ['/products/0005.webp', '/products/0007.webp', '/products/0009.webp', '/products/0014.webp'],
   },
   {
     name: 'Calcetines cortos',
     description: 'Los mismos calcetines brillantes, en corto.',
     tiers: socks, cost_cents: 150, variants: SOCK_COLORS,
-    images: ['/products/0014.webp', '/products/0010.webp', '/products/0006.webp'],
+    images: ['/products/0004.webp', '/products/0006.webp'],
   },
   {
     name: 'Pack chico (3 pares)',
-    description: 'Tres pares de calcetines de chico con dibujos.',
-    tiers: [{ qty: 1, cents: 2500 }], cost_cents: 600, variants: [],
+    description: 'Tres pares de calcetines de chico con dibujos. Hay dos packs para elegir.',
+    tiers: [{ qty: 1, cents: 2500 }], cost_cents: 600,
+    variants: ['Aviones, calaveras gris y rombos granate', 'Motos, calaveras marrón y rombos azul marino'],
     images: ['/products/0001.webp', '/products/0002.webp', '/products/0003.webp'],
   },
 ];

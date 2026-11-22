@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { q, tx, type Product, type Person } from '../lib/db.ts';
 import { orderTotals, euros, formatTiers, type Line } from '../lib/pricing.ts';
-import { specimen, allSpecimens } from '../lib/muestras.ts';
+import { specimen } from '../lib/muestras.ts';
 
 const products = await q<Product>('select * from products where active order by position, id');
 const sellers = await q<Pick<Person, 'id' | 'name'>>('select id, name from people where active order by name');
@@ -48,32 +48,20 @@ if (Astro.request.method === 'POST') {
   }
 }
 
-// The wall: the girls' own close-ups of every colour and pattern.
-const rows = Array.from({ length: 8 }, (_, r) => Array.from({ length: 16 }, (_, c) => allSpecimens[(r * 5 + c * 3) % allSpecimens.length]));
-
 const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), tiers: p.tiers, cost_cents: 0 }));
 ---
 <Base title="¡Rumbo a Roma! · Fajines y calcetines de Recoletos">
   <header class="hero">
-    <div class="wall" aria-hidden="true">
-      {rows.map((row, r) => (
-        <div class="wall-row" style={`--i:${r}`}>
-          {row.map((t) => <img src={t.src} alt="" width="400" height="500" loading={r < 4 ? 'eager' : 'lazy'} />)}
-        </div>
-      ))}
-    </div>
-    <div class="dock">
-      <div class="dock-main">
-        <h1>¡Rumbo a Roma!</h1>
-        <p>Esta Semana Santa queremos vivir una experiencia muy especial y conocer al Santo Padre. Vendemos fajines y calcetines para pagarnos el viaje.</p>
-        <a class="btn" href="#pedido">Hacer mi pedido</a>
-        <ul class="prices">{products.map((p) => <li>{p.name} <span>{formatTiers(p.tiers)}</span></li>)}</ul>
-      </div>
-      <nav class="dock-nav" aria-label="Productos">
-        <span class="mark">recoletos</span>
-        {products.map((p) => <a href={`#p-${p.id}`}>{p.name}</a>)}
-        <a href="/entrar">Vendedoras</a>
-      </nav>
+    <nav class="top" aria-label="Productos">
+      <span class="mark">recoletos</span>
+      {products.map((p) => <a href={`#p-${p.id}`}>{p.name}</a>)}
+      <a href="/entrar">Vendedoras</a>
+    </nav>
+    <div class="poster">
+      <h1>¡Rumbo a Roma!</h1>
+      <p class="lead">Esta Semana Santa queremos vivir una experiencia muy especial y conocer al Santo Padre. Vendemos fajines y calcetines para pagarnos el viaje.</p>
+      <ul class="prices">{products.map((p) => <li>{p.name} <span>{formatTiers(p.tiers)}</span></li>)}</ul>
+      <a class="btn" href="#pedido">Hacer mi pedido</a>
     </div>
   </header>
 
@@ -89,7 +77,6 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
           <article class="cat rise" id={`p-${p.id}`} data-product={p.id}>
             <div class="preview">
               <img class="preview-main" src={p.images[0]} alt={`${p.name}: foto del producto`} width="1050" height="1400" loading="lazy" />
-              <img class="preview-swap" src={p.images[0]} alt="" width="400" height="500" loading="lazy" />
               {p.images.length > 1 && (
                 <div class="thumbs">
                   {p.images.slice(0, 5).map((src, i) => (
@@ -111,7 +98,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
                   const key = `q-${p.id}-${i}`;
                   const label = v ?? p.name;
                   return (
-                    <li class="item" data-preview={specimen(v, p.images[0])}>
+                    <li class="item">
                       <img src={specimen(v, p.images[0])} alt="" width="64" height="80" loading="lazy" />
                       <label for={key}>{label}</label>
                       <div class="stepper">
@@ -245,18 +232,9 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
   form.addEventListener('input', update);
   update();
 
-  // Pointing at a colour or pattern brings its close-up into the big frame.
+  // The thumbnails under each product photo switch the big photo.
   for (const cat of document.querySelectorAll<HTMLElement>('.cat')) {
-    const swap = cat.querySelector<HTMLImageElement>('.preview-swap')!;
     const main = cat.querySelector<HTMLImageElement>('.preview-main')!;
-    const show = (src: string) => { swap.src = src; cat.classList.add('peek'); };
-    const hide = () => cat.classList.remove('peek');
-    for (const item of cat.querySelectorAll<HTMLElement>('.item')) {
-      item.addEventListener('pointerenter', () => show(item.dataset.preview!));
-      item.addEventListener('focusin', () => show(item.dataset.preview!));
-    }
-    cat.querySelector('.items')!.addEventListener('pointerleave', hide);
-    cat.addEventListener('focusout', (e) => { if (!cat.contains((e as FocusEvent).relatedTarget as Node)) hide(); });
     for (const t of cat.querySelectorAll<HTMLButtonElement>('.thumb')) {
       t.addEventListener('click', () => {
         main.src = t.dataset.src!;
@@ -273,34 +251,18 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
 </script>
 
 <style>
-  /* Hero: the specimen wall with the poster docked on it */
-  .hero { position: relative; height: 100svh; min-height: 640px; overflow: hidden; background: var(--ink); }
-  .wall { position: absolute; inset: -8px; display: grid; gap: 8px; align-content: start; }
-  .wall-row { display: flex; gap: 8px; width: max-content; margin-left: calc(-56px * (var(--i) % 2)); animation: drift 60s linear infinite alternate; }
-  .wall-row:nth-child(even) { animation-direction: alternate-reverse; }
-  .wall img { flex: none; width: 112px; height: 140px; object-fit: cover; }
-  .prices { grid-column: 3; grid-row: 2 / span 2; align-self: end; list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font: 400 34px/1.15 var(--hand); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
+  /* Hero: the poster itself */
+  .hero { min-height: 100svh; display: grid; grid-template-rows: auto 1fr; background: var(--paper); }
+  .top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 24px; padding: 20px var(--margin); font-size: 15px; font-weight: 600; }
+  .top a { text-decoration: none; transition: color 160ms var(--ease); }
+  .top a:hover { color: var(--wine); text-decoration: underline; }
+  .mark { font-weight: 800; font-size: 22px; letter-spacing: -0.02em; margin-right: auto; }
+  .poster { display: grid; justify-items: center; align-content: center; gap: 28px; padding: 32px var(--margin) clamp(56px, 8vw, 112px); text-align: center; }
+  .poster h1 { color: var(--wine); font: 400 clamp(72px, 13vw, 210px)/0.9 var(--display); letter-spacing: -0.01em; text-transform: uppercase; }
+  .lead { max-width: 40ch; font-size: clamp(20px, 1.8vw, 26px); line-height: 1.4; color: var(--wine); }
+  .prices { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 40px; font: 400 34px/1.2 var(--hand); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+  .prices li { white-space: nowrap; }
   .prices span { color: var(--wine); white-space: nowrap; }
-  @keyframes drift { to { transform: translateX(-120px); } }
-
-  .dock {
-    position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%);
-    width: min(1100px, calc(100% - 2 * var(--margin)));
-    background: var(--paper); padding: 32px 36px 22px;
-    display: grid; gap: 22px;
-  }
-  .dock-main { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px 32px; align-items: end; }
-  .dock-main > p { grid-column: 1 / 3; }
-  .dock-main > .btn { grid-column: 1; grid-row: 3; justify-self: start; }
-  .dock h1 {
-    grid-column: 1 / -1; color: var(--wine);
-    font: 400 clamp(56px, 8.4vw, 120px)/0.92 var(--display); letter-spacing: -0.01em; text-transform: uppercase;
-  }
-  .dock-main p { max-width: 52ch; font-size: 18px; color: var(--wine); }
-  .dock-nav { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; font-size: 15px; font-weight: 600; }
-  .dock-nav a { text-decoration: none; transition: color 160ms var(--ease); }
-  .dock-nav a:hover { color: var(--wine); text-decoration: underline; }
-  .mark { font-weight: 800; font-size: 18px; letter-spacing: -0.01em; margin-right: auto; }
 
   /* Catalogue: index with preview */
   .catalogue { padding: clamp(96px, 12vw, 180px) var(--margin) 0; display: grid; gap: clamp(96px, 11vw, 160px); }
@@ -315,9 +277,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
   .cat:nth-of-type(even) .preview { order: 2; grid-column: 7 / 13; }
   .cat:nth-of-type(even) .cat-body { grid-column: 1 / 7; }
   .preview { grid-column: 1 / 6; position: relative; display: grid; gap: 8px; }
-  .preview-main, .preview-swap { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; background: var(--paper-deep); }
-  .preview-swap { position: absolute; inset: 0 0 auto; opacity: 0; transition: opacity 240ms var(--ease); pointer-events: none; }
-  .cat.peek .preview-swap { opacity: 1; }
+  .preview-main { width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
   .thumbs { display: flex; gap: 8px; }
   .thumb { padding: 0; border: 0; background: none; cursor: pointer; opacity: 0.6; transition: opacity 160ms var(--ease), transform 160ms var(--ease); }
   .thumb img { width: 64px; height: 64px; object-fit: cover; }
@@ -407,7 +367,6 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
   :global(.js) .rise.in > :nth-child(3) { transition-delay: 160ms; }
 
   @media (prefers-reduced-motion: reduce) {
-    .wall-row { animation: none; }
     :global(.js) .rise > * { opacity: 1; transform: none; }
   }
 
@@ -415,7 +374,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
     .cat-intro h2, .cat-intro p { grid-column: 1 / -1; }
     .cat, .cat:nth-of-type(even) { grid-template-columns: 1fr; }
     .preview, .cat-body, .cat:nth-of-type(even) .preview, .cat:nth-of-type(even) .cat-body { grid-column: 1 / -1; order: 0; }
-    .preview-main, .preview-swap { aspect-ratio: 4 / 3; }
+    .preview-main { aspect-ratio: 4 / 3; }
     .items { grid-template-columns: 1fr; }
     .details-form, .summary { grid-column: 1 / -1; }
     .summary { position: static; }
@@ -423,20 +382,16 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
   }
 
   @media (max-width: 600px) {
-    .hero { min-height: 600px; }
-    .wall img { width: 22vw; height: 27.5vw; }
-    .wall-row { margin-left: calc(-11vw * (var(--i) % 2)); }
-    .prices, .dock-main > p, .dock-main > .btn { grid-column: 1; grid-row: auto; }
-    .prices { font-size: 22px; white-space: normal; }
+    .top { font-size: 14px; gap: 4px 14px; }
+    .mark { width: 100%; }
+    .poster { gap: 20px; }
+    .poster h1 { font-size: 19vw; }
+    .lead { font-size: 18px; }
+    .prices { flex-direction: column; gap: 2px; font-size: 22px; }
+    .prices li { white-space: normal; }
+    .poster .btn { width: 100%; }
     .tag { font-size: 30px; }
     .band p { font-size: 18px; }
-    .dock { bottom: 0; width: 100%; padding: 24px 16px 18px; gap: 16px; }
-    .dock-main { grid-template-columns: 1fr; gap: 12px; }
-    .dock h1 { font-size: 15vw; }
-    .dock-main p { font-size: 18px; }
-    .dock .btn { width: 100%; }
-    .dock-nav { font-size: 14px; gap: 4px 14px; }
-    .mark { width: 100%; }
     .strip { grid-template-columns: 1fr 1fr; }
     .strip img:first-child { grid-column: 1 / -1; height: auto; aspect-ratio: 4 / 3; }
     .strip img { height: auto; min-height: 0; aspect-ratio: 1; }
