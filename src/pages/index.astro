@@ -3,9 +3,10 @@ import Base from '../layouts/Base.astro';
 import { q, tx, type Product, type Person } from '../lib/db.ts';
 import { orderTotals, euros, formatTiers, type Line } from '../lib/pricing.ts';
 import { specimen } from '../lib/muestras.ts';
+import { notifySeller } from '../lib/mail.ts';
 
 const products = await q<Product>('select * from products where active order by position, id');
-const sellers = await q<Pick<Person, 'id' | 'name'>>('select id, name from people where active and sells order by name');
+const sellers = await q<Pick<Person, 'id' | 'name' | 'email'>>('select id, name, email from people where active and sells order by name');
 
 const options = (p: Product) => (p.variants.length ? p.variants : [null]);
 const unit = (p: Product) => (p.name.toLowerCase().includes('calcet') ? 'pares' : 'uds.');
@@ -43,6 +44,14 @@ if (Astro.request.method === 'POST') {
         await c.query('insert into order_items (order_id, product_id, variant, qty) values ($1, $2, $3, $4)', [o.id, l.product_id, l.variant, l.qty]);
       }
       return o.id as string;
+    });
+    await notifySeller({
+      seller,
+      buyer: { name: values.name, phone: values.phone },
+      notes: values.notes || null,
+      total,
+      items: lines.map((l) => ({ product: products.find((p) => p.id === l.product_id)!.name, variant: l.variant, qty: l.qty })),
+      panelUrl: new URL('/panel', Astro.url).href,
     });
     return Astro.redirect(`/pedido/${id}`, 303);
   }
