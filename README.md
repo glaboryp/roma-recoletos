@@ -29,7 +29,12 @@ Las vendedoras y los pedidos del formulario de Google se cargan desde `scripts/p
 2. **Google**: en Google Cloud Console → *APIs y servicios* → *Credenciales*, crea un *ID de cliente OAuth* de tipo aplicación web con la URI de redirección
    `https://TU-DOMINIO/api/auth/callback/google` (y `http://localhost:4321/api/auth/callback/google` para local). En la pantalla de consentimiento, publica la app: mientras esté en *Testing* solo pueden entrar los usuarios de prueba que añadas allí.
 3. **Variables en Vercel**: `BETTER_AUTH_URL` (la URL pública), `BETTER_AUTH_SECRET` (`openssl rand -hex 32`), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
-4. **Base de datos**: `vercel env pull .env`, añade `ADMIN_EMAIL=tu@gmail.com` y `ADMIN_NAME=...`, y ejecuta `pnpm db:setup` una vez.
+4. **Base de datos**: desde tu ordenador, con `scripts/pedidos-formulario.json` en su sitio, ejecuta una vez:
+   ```sh
+   vercel env pull .env.production.local --environment=production
+   ADMIN_EMAIL=tu@gmail.com ADMIN_NAME=Recoletos node --env-file=.env.production.local scripts/db.mjs
+   ```
+   `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN` los crea Vercel; `BETTER_AUTH_URL` es la URL pública y `BETTER_AUTH_SECRET` uno nuevo. `ADMIN_EMAIL` y `ADMIN_NAME` no hacen falta en Vercel.
 5. Entra en `/entrar` con tu Gmail, pon el número de Bizum en *Pedidos* y añade los Gmails de cada una en *Personas*.
 
 ## Cómo funciona
