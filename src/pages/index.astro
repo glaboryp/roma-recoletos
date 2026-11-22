@@ -5,7 +5,7 @@ import { orderTotals, euros, formatTiers, type Line } from '../lib/pricing.ts';
 import { specimen } from '../lib/muestras.ts';
 
 const products = await q<Product>('select * from products where active order by position, id');
-const sellers = await q<Pick<Person, 'id' | 'name'>>('select id, name from people where active order by name');
+const sellers = await q<Pick<Person, 'id' | 'name'>>('select id, name from people where active and sells order by name');
 
 const options = (p: Product) => (p.variants.length ? p.variants : [null]);
 const unit = (p: Product) => (p.name.toLowerCase().includes('calcet') ? 'pares' : 'uds.');

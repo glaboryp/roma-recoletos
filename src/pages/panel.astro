@@ -4,6 +4,7 @@ import { listOrders, describe, shortDate } from '../lib/orders.ts';
 import { euros } from '../lib/pricing.ts';
 
 const me = Astro.locals.person!;
+if (!me.sells) return Astro.redirect('/admin');
 const orders = await listOrders('where o.seller_id = $1', [me.id]);
 const sold = orders.reduce((s, o) => s + o.total_cents, 0);
 const cost = orders.reduce((s, o) => s + o.cost_cents, 0);

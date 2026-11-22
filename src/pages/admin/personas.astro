@@ -18,7 +18,7 @@ if (Astro.request.method === 'POST') {
   else if (id === me.id && (role !== 'admin' || !active)) error = 'No puedes quitarte a ti misma el acceso de gestión.';
   else {
     try {
-      if (id) await q('update people set name=$1, email=$2, role=$3, active=$4 where id=$5', [name, email, role, active, id]);
+      if (id) await q('update people set name=$1, email=$2, role=$3, active=$4 where id=$5 and sells', [name, email, role, active, id]);
       else await q('insert into people (name, email, role) values ($1, $2, $3)', [name, email, role]);
       return Astro.redirect('/admin/personas', 303);
     } catch (e: any) {
@@ -29,7 +29,7 @@ if (Astro.request.method === 'POST') {
 }
 
 const people = await q<Person & { orders: number }>(
-  'select p.*, (select count(*)::int from orders o where o.seller_id = p.id) orders from people p order by p.active desc, p.name',
+  'select p.*, (select count(*)::int from orders o where o.seller_id = p.id) orders from people p where p.sells order by p.active desc, p.name',
 );
 ---
 <App title="Personas">

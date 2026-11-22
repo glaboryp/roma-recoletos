@@ -6,7 +6,7 @@ const { title } = Astro.props;
 const person = Astro.locals.person!;
 const path = Astro.url.pathname;
 const links = [
-  { href: '/panel', label: 'Mis ventas' },
+  ...(person.sells ? [{ href: '/panel', label: 'Mis ventas' }] : []),
   ...(person.role === 'admin'
     ? [
         { href: '/admin', label: 'Pedidos' },

@@ -50,8 +50,8 @@ await runMigrations();
 
 if (process.env.ADMIN_EMAIL) {
   await pool.query(
-    `insert into people (name, email, role) values ($1, lower($2), 'admin')
-     on conflict (email) do update set role = 'admin', active = true`,
+    `insert into people (name, email, role, sells) values ($1, lower($2), 'admin', false)
+     on conflict (email) do update set role = 'admin', active = true, sells = false`,
     [process.env.ADMIN_NAME || 'Admin', process.env.ADMIN_EMAIL],
   );
 }

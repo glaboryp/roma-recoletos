@@ -7,6 +7,8 @@ create table if not exists people (
   created_at timestamptz not null default now()
 );
 
+alter table people add column if not exists sells boolean not null default true;
+
 create table if not exists products (
   id serial primary key,
   name text not null,

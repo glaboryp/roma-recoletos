@@ -30,7 +30,7 @@ const bySeller = people
     const mine = all.filter((o) => o.seller_id === p.id);
     return { ...p, n: mine.length, sold: sum(mine, 'total_cents'), cost: sum(mine, 'cost_cents'), pending: sum(mine.filter((o) => !o.paid), 'total_cents') };
   })
-  .filter((p) => p.n > 0 || p.active)
+  .filter((p) => p.n > 0 || (p.active && p.sells))
   .sort((a, b) => b.sold - a.sold);
 ---
 <App title="Pedidos">
@@ -85,7 +85,7 @@ const bySeller = people
         <span>Vendedora</span>
         <select class="input" name="de">
           <option value="">Todas</option>
-          {people.map((p) => <option value={p.id} selected={String(p.id) === de}>{p.name}</option>)}
+          {people.filter((p) => p.sells || String(p.id) === de).map((p) => <option value={p.id} selected={String(p.id) === de}>{p.name}</option>)}
         </select>
       </label>
       <label class="field">

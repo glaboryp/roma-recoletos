@@ -25,7 +25,7 @@ export async function tx<T>(fn: (c: pg.PoolClient) => Promise<T>): Promise<T> {
   }
 }
 
-export type Person = { id: number; name: string; email: string | null; role: 'seller' | 'admin'; active: boolean };
+export type Person = { id: number; name: string; email: string | null; role: 'seller' | 'admin'; active: boolean; sells: boolean };
 export type Product = {
   id: number; name: string; description: string; tiers: { qty: number; cents: number }[];
   cost_cents: number; variants: string[]; images: string[]; position: number; active: boolean;
