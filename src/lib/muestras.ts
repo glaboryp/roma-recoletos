@@ -10,5 +10,7 @@ const bySlug: Record<string, string> = Object.fromEntries(
 );
 
 // A close-up uploaded from the panel wins, then the bundled one, then the product's first photo.
+export const hasBundledSpecimen = (variant: string) => slug(variant) in bySlug;
+
 export const specimen = (variant: string | null, fallback: string, uploaded: Record<string, string> = {}) =>
   (variant && (uploaded[variant] ?? bySlug[slug(variant)])) || fallback;

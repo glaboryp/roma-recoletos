@@ -63,6 +63,9 @@ td.num { white-space: nowrap; }
 .cover { visibility: hidden; font-size: 13px; font-weight: 700; color: var(--wine); }
 .photo:first-child .cover { visibility: visible; }
 .photo-tools { display: flex; gap: 4px; }
+.btn[aria-busy='true'] { opacity: 0.85; cursor: progress; }
+.spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 700ms linear infinite; }
+@keyframes spin { to { transform: rotate(1turn); } }
 .icon-btn { display: grid; place-items: center; width: 36px; height: 32px; padding: 0; border: 0; background: var(--paper-deep); color: var(--ink); cursor: pointer; transition: background-color 160ms var(--ease); }
 .icon-btn:hover { background: var(--line); }
 .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }

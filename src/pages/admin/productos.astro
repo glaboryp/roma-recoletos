@@ -4,7 +4,7 @@ import App from '../../layouts/App.astro';
 import ProductForm from '../../components/ProductForm.astro';
 import { q, one, type Product } from '../../lib/db.ts';
 import { parseTiers, parseEuros, formatTiers, euros } from '../../lib/pricing.ts';
-import { slug } from '../../lib/muestras.ts';
+import { slug, hasBundledSpecimen } from '../../lib/muestras.ts';
 
 let error = '';
 let saved = Astro.url.searchParams.get('ok');
@@ -15,9 +15,10 @@ if (Astro.request.method === 'POST') {
   const name = String(f.get('name') ?? '').trim();
   const tiers = parseTiers(String(f.get('tiers') ?? ''));
   const cost = parseEuros(String(f.get('cost') ?? ''));
+  const current = id ? await one<Product>('select * from products where id = $1', [id]) : undefined;
   const files = (f.getAll('photos') as File[]).filter((file) => file.size > 0);
   const remove = f.getAll('remove').map(String);
-  // One row per variant, in form order: v-name-N, v-orig-N (name before editing), v-file-N, v-rmimg-N, v-del-N.
+  // One row per variant, in form order: v-name-N, v-orig-N (name before editing), v-file-N, v-del-N.
   const rows = [...f.keys()].filter((k) => k.startsWith('v-name-')).map((k) => k.slice(7))
     .sort((a, b) => Number(a) - Number(b))
     .map((i) => {
@@ -26,20 +27,25 @@ if (Astro.request.method === 'POST') {
         name: String(f.get(`v-name-${i}`) ?? '').trim(),
         orig: String(f.get(`v-orig-${i}`) ?? ''),
         file: file instanceof File && file.size > 0 ? file : null,
-        rmImg: f.get(`v-rmimg-${i}`) === 'on',
         del: f.get(`v-del-${i}`) === 'on',
       };
     })
-    .filter((r) => r.name && !r.del);
+    .filter((r) => !r.del);
+  const unnamed = rows.some((r) => !r.name);
   const variants = rows.map((r) => r.name);
+  // Every variant needs a close-up: uploaded now, uploaded before (and kept), or bundled with the site.
+  const withoutPhoto = rows.find(
+    (r) => r.name && !r.file && !current?.variant_images[r.orig] && !hasBundledSpecimen(r.name),
+  );
   const allFiles = [...files, ...rows.flatMap((r) => (r.file ? [r.file] : []))];
-  const current = id ? await one<Product>('select * from products where id = $1', [id]) : undefined;
 
   if (!name) error = 'El producto necesita un nombre.';
   else if (!tiers) error = 'Revisa los precios: escribe cantidad x precio, por ejemplo "1x9, 2x16". Tiene que haber precio para 1.';
   else if (cost === null) error = 'Revisa el coste: un número en euros, por ejemplo 1,5.';
   else if (id && !current) error = 'Ese producto ya no existe.';
+  else if (unnamed) error = 'Hay una variante sin nombre: escríbelo o quita esa fila.';
   else if (new Set(variants).size !== variants.length) error = 'Hay dos variantes con el mismo nombre.';
+  else if (withoutPhoto) error = `La variante «${withoutPhoto.name}» necesita una foto de detalle.`;
   else if (allFiles.some((file) => !file.type.startsWith('image/') || file.size > 4_000_000)) error = 'Las fotos tienen que ser imágenes de menos de 4 MB.';
   else if (allFiles.length && !process.env.BLOB_READ_WRITE_TOKEN) error = 'Falta conectar Vercel Blob (BLOB_READ_WRITE_TOKEN) para poder subir fotos.';
   else {
@@ -54,8 +60,7 @@ if (Astro.request.method === 'POST') {
     // Close-ups are keyed by variant name; a renamed variant keeps its photo.
     const variantImages: Record<string, string> = {};
     for (const r of rows) {
-      const kept = r.rmImg ? undefined : current?.variant_images[r.orig];
-      const src = r.file ? await upload(r.file, `${name}-${r.name}`) : kept;
+      const src = r.file ? await upload(r.file, `${name}-${r.name}`) : current?.variant_images[r.orig];
       if (src) variantImages[r.name] = src;
     }
     const params = [name, String(f.get('description') ?? '').trim(), JSON.stringify(tiers), cost, variants, images, f.get('active') === 'on', JSON.stringify(variantImages)];
@@ -106,6 +111,7 @@ const products = await q<Product>('select * from products order by position, id'
   }
 
   document.addEventListener('click', (e) => {
+    (e.target as HTMLElement).closest('[data-remove-row]')?.closest('.variant-row')?.remove();
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-move]');
     if (!btn) return;
     const photo = btn.closest('[data-photo]')!;
@@ -115,6 +121,17 @@ const products = await q<Product>('select * from products order by position, id'
     else target.after(photo);
     btn.focus();
   });
+
+  // Uploads can take a few seconds: lock the button so the form is not sent twice.
+  document.addEventListener('submit', (e) => {
+    const btn = (e.target as HTMLFormElement).querySelector<HTMLButtonElement>('button[data-busy-label]');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    btn.innerHTML = `<span class="spinner" aria-hidden="true"></span>${btn.dataset.busyLabel}`;
+  });
+  // Coming back with the browser's back button must not leave a button stuck in "Guardando…".
+  window.addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
 
   document.addEventListener('change', async (e) => {
     const input = e.target as HTMLInputElement;

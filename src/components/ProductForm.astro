@@ -62,10 +62,9 @@ const fallback = p?.images[0] ?? '';
       <div class="variant-row">
         <img src={specimen(v, fallback, p?.variant_images)} alt="" width="64" height="80" />
         <input type="hidden" name={`v-orig-${i}`} value={v} />
-        <label class="field"><span>Nombre</span><input class="input" name={`v-name-${i}`} value={v} /></label>
-        <label class="field"><span>{p?.variant_images[v] ? 'Cambiar foto de detalle' : 'Foto de detalle'}</span><input class="input" type="file" name={`v-file-${i}`} accept="image/*" data-shrink /></label>
+        <label class="field"><span>Nombre</span><input class="input" name={`v-name-${i}`} value={v} required /></label>
+        <label class="field"><span>Cambiar foto de detalle</span><input class="input" type="file" name={`v-file-${i}`} accept="image/*" data-shrink /></label>
         <div class="variant-checks">
-          {p?.variant_images[v] && <label class="check"><input type="checkbox" name={`v-rmimg-${i}`} /> Quitar foto subida</label>}
           <label class="check"><input type="checkbox" name={`v-del-${i}`} /> Quitar variante</label>
         </div>
       </div>
@@ -73,14 +72,15 @@ const fallback = p?.images[0] ?? '';
     <template data-variant-template>
       <div class="variant-row">
         <span class="variant-empty" aria-hidden="true"></span>
-        <label class="field"><span>Nombre</span><input class="input" name="v-name-__i__" placeholder="Por ejemplo: Rayas azules" /></label>
-        <label class="field"><span>Foto de detalle</span><input class="input" type="file" name="v-file-__i__" accept="image/*" data-shrink /></label>
+        <label class="field"><span>Nombre</span><input class="input" name="v-name-__i__" placeholder="Por ejemplo: Rayas azules" required /></label>
+        <label class="field"><span>Foto de detalle</span><input class="input" type="file" name="v-file-__i__" accept="image/*" data-shrink required /></label>
+        <div class="variant-checks"><button class="linkish" type="button" data-remove-row>Quitar</button></div>
       </div>
     </template>
     <button class="btn ghost small" type="button" data-add-variant data-next={variants.length}>Añadir variante</button>
   </fieldset>
   <div class="toolbar">
     <label class="check"><input type="checkbox" name="active" checked={p ? p.active : true} /> Se ve en la tienda</label>
-    <button class="btn small" type="submit">{p ? 'Guardar cambios' : 'Añadir producto'}</button>
+    <button class="btn small" type="submit" data-busy-label="Guardando…">{p ? 'Guardar cambios' : 'Añadir producto'}</button>
   </div>
 </form>
