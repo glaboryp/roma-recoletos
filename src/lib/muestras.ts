@@ -9,5 +9,6 @@ const bySlug: Record<string, string> = Object.fromEntries(
   Object.entries(files).map(([path, img]) => [path.split('/').pop()!.replace('.webp', ''), img.src]),
 );
 
-// Variants without their own close-up fall back to the product's first photo.
-export const specimen = (variant: string | null, fallback: string) => (variant && bySlug[slug(variant)]) || fallback;
+// A close-up uploaded from the panel wins, then the bundled one, then the product's first photo.
+export const specimen = (variant: string | null, fallback: string, uploaded: Record<string, string> = {}) =>
+  (variant && (uploaded[variant] ?? bySlug[slug(variant)])) || fallback;

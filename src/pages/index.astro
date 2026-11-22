@@ -108,7 +108,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
                   const label = v ?? p.name;
                   return (
                     <li class="item">
-                      <img src={specimen(v, p.images[0])} alt="" width="64" height="80" loading="lazy" />
+                      <img src={specimen(v, p.images[0], p.variant_images)} alt="" width="64" height="80" loading="lazy" />
                       <label for={key}>{label}</label>
                       <div class="stepper">
                         <button type="button" data-step="-1" aria-label={`Quitar ${label}`}>

@@ -1,23 +1,20 @@
 ---
 import type { Product } from '../lib/db.ts';
+import { specimen } from '../lib/muestras.ts';
 
 interface Props { product?: Product }
 const { product: p } = Astro.props;
 const tiersText = p ? p.tiers.map((t) => `${t.qty}x${String(t.cents / 100).replace('.', ',')}`).join(', ') : '';
 const id = p ? `p${p.id}` : 'nuevo';
+const variants = p?.variants ?? [];
+const fallback = p?.images[0] ?? '';
 ---
 <form method="post" enctype="multipart/form-data" class="sheet" id={id}>
   <input type="hidden" name="id" value={p?.id ?? ''} />
-  <div class="grid-2">
-    <label class="field">
-      <span>Nombre</span>
-      <input class="input" name="name" required value={p?.name ?? ''} />
-    </label>
-    <label class="field">
-      <span>Variantes <small>(colores o estampados, separados por comas; vacío si no hay)</small></span>
-      <input class="input" name="variants" value={p?.variants.join(', ') ?? ''} placeholder="Negro, Granate, Azul" />
-    </label>
-  </div>
+  <label class="field">
+    <span>Nombre</span>
+    <input class="input" name="name" required value={p?.name ?? ''} />
+  </label>
   <label class="field">
     <span>Descripción</span>
     <textarea class="input" name="description">{p?.description ?? ''}</textarea>
@@ -32,21 +29,56 @@ const id = p ? `p${p.id}` : 'nuevo';
       <input class="input" name="cost" required inputmode="decimal" value={p ? String(p.cost_cents / 100).replace('.', ',') : ''} placeholder="5" />
     </label>
   </div>
-  {p && p.images.length > 0 && (
-    <fieldset class="photos">
-      <legend class="sr-only">Fotos actuales</legend>
-      {p.images.map((src, i) => (
-        <label>
-          <img src={src} alt={`Foto ${i + 1} de ${p.name}`} width="96" height="96" />
-          <span class="check"><input type="checkbox" name="remove" value={src} /> Quitar</span>
-        </label>
-      ))}
-    </fieldset>
-  )}
-  <label class="field">
-    <span>Añadir fotos <small>(la primera foto es la portada)</small></span>
-    <input class="input" type="file" name="photos" accept="image/*" multiple data-shrink />
-  </label>
+  <fieldset class="section">
+    <legend>Fotos del producto <small>(la primera es la portada; con las flechas cambias el orden)</small></legend>
+    {p && p.images.length > 0 && (
+      <div class="photos">
+        {p.images.map((src, i) => (
+          <div class="photo" data-photo>
+            <input type="hidden" name="keep" value={src} />
+            <img src={src} alt={`Foto ${i + 1} de ${p.name}`} width="96" height="96" />
+            <span class="cover">Portada</span>
+            <div class="photo-tools">
+              <button class="icon-btn" type="button" data-move="-1" aria-label="Mover antes">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4 6.5 10l6 6" /></svg>
+              </button>
+              <button class="icon-btn" type="button" data-move="1" aria-label="Mover después">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4 6 6-6 6" /></svg>
+              </button>
+            </div>
+            <label class="check"><input type="checkbox" name="remove" value={src} /> Quitar</label>
+          </div>
+        ))}
+      </div>
+    )}
+    <label class="field">
+      <span>Añadir fotos</span>
+      <input class="input" type="file" name="photos" accept="image/*" multiple data-shrink />
+    </label>
+  </fieldset>
+  <fieldset class="section variants" data-variants>
+    <legend>Variantes <small>(colores o estampados, cada uno con su foto de detalle; ninguna si el producto no tiene)</small></legend>
+    {variants.map((v, i) => (
+      <div class="variant-row">
+        <img src={specimen(v, fallback, p?.variant_images)} alt="" width="64" height="80" />
+        <input type="hidden" name={`v-orig-${i}`} value={v} />
+        <label class="field"><span>Nombre</span><input class="input" name={`v-name-${i}`} value={v} /></label>
+        <label class="field"><span>{p?.variant_images[v] ? 'Cambiar foto de detalle' : 'Foto de detalle'}</span><input class="input" type="file" name={`v-file-${i}`} accept="image/*" data-shrink /></label>
+        <div class="variant-checks">
+          {p?.variant_images[v] && <label class="check"><input type="checkbox" name={`v-rmimg-${i}`} /> Quitar foto subida</label>}
+          <label class="check"><input type="checkbox" name={`v-del-${i}`} /> Quitar variante</label>
+        </div>
+      </div>
+    ))}
+    <template data-variant-template>
+      <div class="variant-row">
+        <span class="variant-empty" aria-hidden="true"></span>
+        <label class="field"><span>Nombre</span><input class="input" name="v-name-__i__" placeholder="Por ejemplo: Rayas azules" /></label>
+        <label class="field"><span>Foto de detalle</span><input class="input" type="file" name="v-file-__i__" accept="image/*" data-shrink /></label>
+      </div>
+    </template>
+    <button class="btn ghost small" type="button" data-add-variant data-next={variants.length}>Añadir variante</button>
+  </fieldset>
   <div class="toolbar">
     <label class="check"><input type="checkbox" name="active" checked={p ? p.active : true} /> Se ve en la tienda</label>
     <button class="btn small" type="submit">{p ? 'Guardar cambios' : 'Añadir producto'}</button>

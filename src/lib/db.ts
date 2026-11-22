@@ -28,7 +28,7 @@ export async function tx<T>(fn: (c: pg.PoolClient) => Promise<T>): Promise<T> {
 export type Person = { id: number; name: string; email: string | null; role: 'seller' | 'admin'; active: boolean; sells: boolean };
 export type Product = {
   id: number; name: string; description: string; tiers: { qty: number; cents: number }[];
-  cost_cents: number; variants: string[]; images: string[]; position: number; active: boolean;
+  cost_cents: number; variants: string[]; images: string[]; variant_images: Record<string, string>; position: number; active: boolean;
 };
 
 export const setting = async (key: string) => (await one<{ value: string }>('select value from settings where key = $1', [key]))?.value ?? '';

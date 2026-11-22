@@ -21,6 +21,8 @@ create table if not exists products (
   active boolean not null default true
 );
 
+alter table products add column if not exists variant_images jsonb not null default '{}';
+
 create table if not exists orders (
   id uuid primary key default gen_random_uuid(),
   seller_id int not null references people(id),

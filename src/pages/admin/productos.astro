@@ -15,28 +15,53 @@ if (Astro.request.method === 'POST') {
   const name = String(f.get('name') ?? '').trim();
   const tiers = parseTiers(String(f.get('tiers') ?? ''));
   const cost = parseEuros(String(f.get('cost') ?? ''));
-  const variants = String(f.get('variants') ?? '').split(',').map((v) => v.trim()).filter(Boolean);
   const files = (f.getAll('photos') as File[]).filter((file) => file.size > 0);
   const remove = f.getAll('remove').map(String);
+  // One row per variant, in form order: v-name-N, v-orig-N (name before editing), v-file-N, v-rmimg-N, v-del-N.
+  const rows = [...f.keys()].filter((k) => k.startsWith('v-name-')).map((k) => k.slice(7))
+    .sort((a, b) => Number(a) - Number(b))
+    .map((i) => {
+      const file = f.get(`v-file-${i}`);
+      return {
+        name: String(f.get(`v-name-${i}`) ?? '').trim(),
+        orig: String(f.get(`v-orig-${i}`) ?? ''),
+        file: file instanceof File && file.size > 0 ? file : null,
+        rmImg: f.get(`v-rmimg-${i}`) === 'on',
+        del: f.get(`v-del-${i}`) === 'on',
+      };
+    })
+    .filter((r) => r.name && !r.del);
+  const variants = rows.map((r) => r.name);
+  const allFiles = [...files, ...rows.flatMap((r) => (r.file ? [r.file] : []))];
   const current = id ? await one<Product>('select * from products where id = $1', [id]) : undefined;
 
   if (!name) error = 'El producto necesita un nombre.';
   else if (!tiers) error = 'Revisa los precios: escribe cantidad x precio, por ejemplo "1x9, 2x16". Tiene que haber precio para 1.';
   else if (cost === null) error = 'Revisa el coste: un número en euros, por ejemplo 1,5.';
   else if (id && !current) error = 'Ese producto ya no existe.';
-  else if (files.some((file) => !file.type.startsWith('image/') || file.size > 4_000_000)) error = 'Las fotos tienen que ser imágenes de menos de 4 MB.';
-  else if (files.length && !process.env.BLOB_READ_WRITE_TOKEN) error = 'Falta conectar Vercel Blob (BLOB_READ_WRITE_TOKEN) para poder subir fotos.';
+  else if (new Set(variants).size !== variants.length) error = 'Hay dos variantes con el mismo nombre.';
+  else if (allFiles.some((file) => !file.type.startsWith('image/') || file.size > 4_000_000)) error = 'Las fotos tienen que ser imágenes de menos de 4 MB.';
+  else if (allFiles.length && !process.env.BLOB_READ_WRITE_TOKEN) error = 'Falta conectar Vercel Blob (BLOB_READ_WRITE_TOKEN) para poder subir fotos.';
   else {
+    const upload = async (file: File, label: string) =>
+      (await put(`productos/${slug(label)}-${file.name}`, file, { access: 'public', addRandomSuffix: true })).url;
     const uploaded: string[] = [];
-    for (const file of files) {
-      const blob = await put(`productos/${slug(name)}-${file.name}`, file, { access: 'public', addRandomSuffix: true });
-      uploaded.push(blob.url);
+    for (const file of files) uploaded.push(await upload(file, name));
+    // "keep" carries the current photos in the order shown in the form; only known photos are accepted.
+    const keep = f.getAll('keep').map(String).filter((src) => current?.images.includes(src));
+    const ordered = [...keep, ...(current?.images ?? []).filter((src) => !keep.includes(src))];
+    const images = [...ordered.filter((src) => !remove.includes(src)), ...uploaded];
+    // Close-ups are keyed by variant name; a renamed variant keeps its photo.
+    const variantImages: Record<string, string> = {};
+    for (const r of rows) {
+      const kept = r.rmImg ? undefined : current?.variant_images[r.orig];
+      const src = r.file ? await upload(r.file, `${name}-${r.name}`) : kept;
+      if (src) variantImages[r.name] = src;
     }
-    const images = [...(current?.images ?? []).filter((src) => !remove.includes(src)), ...uploaded];
-    const params = [name, String(f.get('description') ?? '').trim(), JSON.stringify(tiers), cost, variants, images, f.get('active') === 'on'];
+    const params = [name, String(f.get('description') ?? '').trim(), JSON.stringify(tiers), cost, variants, images, f.get('active') === 'on', JSON.stringify(variantImages)];
     const row = id
-      ? await one<{ id: number }>('update products set name=$1, description=$2, tiers=$3, cost_cents=$4, variants=$5, images=$6, active=$7 where id=$8 returning id', [...params, id])
-      : await one<{ id: number }>('insert into products (name, description, tiers, cost_cents, variants, images, active, position) values ($1,$2,$3,$4,$5,$6,$7,(select coalesce(max(position),0)+1 from products)) returning id', params);
+      ? await one<{ id: number }>('update products set name=$1, description=$2, tiers=$3, cost_cents=$4, variants=$5, images=$6, active=$7, variant_images=$8 where id=$9 returning id', [...params, id])
+      : await one<{ id: number }>('insert into products (name, description, tiers, cost_cents, variants, images, active, variant_images, position) values ($1,$2,$3,$4,$5,$6,$7,$8,(select coalesce(max(position),0)+1 from products)) returning id', params);
     return Astro.redirect(`/admin/productos?ok=${row!.id}#p${row!.id}`, 303);
   }
   saved = null;
@@ -70,9 +95,31 @@ const products = await q<Product>('select * from products order by position, id'
 
 <script>
   // Phone photos are often over the 4 MB upload limit: shrink them to 1600px WebP before sending.
-  for (const input of document.querySelectorAll<HTMLInputElement>('input[data-shrink]')) {
-    input.addEventListener('change', async () => {
-      const out = new DataTransfer();
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-add-variant]')) {
+    button.addEventListener('click', () => {
+      const template = button.parentElement!.querySelector<HTMLTemplateElement>('[data-variant-template]')!;
+      const i = String(Number(button.dataset.next));
+      button.dataset.next = String(Number(i) + 1);
+      button.before(document.createRange().createContextualFragment(template.innerHTML.replaceAll('__i__', i)));
+      button.previousElementSibling!.querySelector('input')!.focus();
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-move]');
+    if (!btn) return;
+    const photo = btn.closest('[data-photo]')!;
+    const target = btn.dataset.move === '-1' ? photo.previousElementSibling : photo.nextElementSibling;
+    if (!target) return;
+    if (btn.dataset.move === '-1') target.before(photo);
+    else target.after(photo);
+    btn.focus();
+  });
+
+  document.addEventListener('change', async (e) => {
+    const input = e.target as HTMLInputElement;
+    if (!input.matches('input[data-shrink]')) return;
+    const out = new DataTransfer();
       for (const file of input.files ?? []) {
         const bmp = await createImageBitmap(file);
         const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
@@ -81,7 +128,6 @@ const products = await q<Product>('select * from products order by position, id'
         const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.82 });
         out.items.add(new File([blob], file.name.replace(/\.\w+$/, '') + '.webp', { type: 'image/webp' }));
       }
-      input.files = out.files;
-    });
-  }
+    input.files = out.files;
+  });
 </script>
