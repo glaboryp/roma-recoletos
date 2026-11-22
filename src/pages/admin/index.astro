@@ -65,7 +65,7 @@ const bySeller = people
         <tbody>
           {bySeller.map((p) => (
             <tr>
-              <td><a href={`/admin?de=${p.id}`}><strong>{p.name}</strong></a></td>
+              <td><a href={`/admin?de=${p.id}#pedidos`}><strong>{p.name}</strong></a></td>
               <td class="r">{p.n}</td>
               <td class="r">{euros(p.sold)}</td>
               <td class="r muted">{euros(p.cost)}</td>
@@ -78,9 +78,9 @@ const bySeller = people
     </div>
   </section>
 
-  <section class="block" aria-labelledby="orders-h">
+  <section class="block" id="pedidos" aria-labelledby="orders-h">
     <h2 id="orders-h">Todos los pedidos <span class="muted">({orders.length})</span></h2>
-    <form class="toolbar" method="get">
+    <form class="toolbar" method="get" action="/admin#pedidos">
       <label class="field">
         <span>Vendedora</span>
         <select class="input" name="de">
@@ -97,7 +97,7 @@ const bySeller = people
         </select>
       </label>
       <button class="btn ghost small" type="submit">Filtrar</button>
-      {(de || estado) && <a href="/admin">Quitar filtros</a>}
+      {(de || estado) && <a href="/admin#pedidos">Quitar filtros</a>}
     </form>
     {orders.length === 0 ? (
       <p class="empty">No hay pedidos con estos filtros.</p>

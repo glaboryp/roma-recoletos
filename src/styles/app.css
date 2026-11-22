@@ -14,7 +14,7 @@
 .title-row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 32px; }
 .title-row h1 { font: 400 clamp(36px, 4vw, 48px)/1 var(--display); text-transform: uppercase; color: var(--wine); }
 .finding { font-size: 18px; font-weight: 600; margin-top: 8px; }
-.block { display: grid; gap: 16px; }
+.block { display: grid; gap: 16px; scroll-margin-top: 24px; }
 .block > h2 { font: 400 28px/1.1 var(--display); text-transform: uppercase; }
 .muted { color: var(--ink-soft); }
 
