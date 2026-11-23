@@ -1,6 +1,6 @@
 ---
 import App from '../../layouts/App.astro';
-import { q, setting, type Person } from '../../lib/db.ts';
+import { q, tx, setting, type Person } from '../../lib/db.ts';
 import { listOrders, describe, shortDate, isUuid } from '../../lib/orders.ts';
 import { euros } from '../../lib/pricing.ts';
 
@@ -9,7 +9,20 @@ if (Astro.request.method === 'POST') {
   const action = f.get('action');
   const id = String(f.get('id') ?? '');
   if (action === 'paid' && isUuid(id)) await q('update orders set paid = $2 where id = $1', [id, f.get('paid') === 'true']);
-  if (action === 'delete' && isUuid(id)) await q('delete from orders where id = $1', [id]);
+  if (action === 'delete' && isUuid(id)) {
+    await tx(async (c) => {
+      // A deleted order gives its units back to the variants that keep count.
+      const { rows } = await c.query('delete from order_items where order_id = $1 returning product_id, variant, qty', [id]);
+      for (const i of rows) {
+        await c.query(
+          `update products set variant_stock = jsonb_set(variant_stock, array[$2::text], to_jsonb((variant_stock->>$2)::int + $3))
+           where id = $1 and variant_stock ? $2`,
+          [i.product_id, i.variant, i.qty],
+        );
+      }
+      await c.query('delete from orders where id = $1', [id]);
+    });
+  }
   if (action === 'bizum') {
     await q(`insert into settings (key, value) values ('bizum', $1) on conflict (key) do update set value = excluded.value`, [String(f.get('bizum') ?? '').trim().slice(0, 40)]);
   }

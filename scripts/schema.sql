@@ -22,6 +22,8 @@ create table if not exists products (
 );
 
 alter table products add column if not exists variant_images jsonb not null default '{}';
+-- Units left per variant name; a variant without a key has no limit.
+alter table products add column if not exists variant_stock jsonb not null default '{}';
 
 create table if not exists orders (
   id uuid primary key default gen_random_uuid(),

@@ -57,13 +57,14 @@ const fallback = p?.images[0] ?? '';
     </label>
   </fieldset>
   <fieldset class="section variants" data-variants>
-    <legend>Variantes <small>(colores o estampados, cada uno con su foto de detalle; ninguna si el producto no tiene)</small></legend>
+    <legend>Variantes <small>(colores o estampados, cada uno con su foto de detalle; ninguna si el producto no tiene. Deja las existencias vacías si siempre hay)</small></legend>
     {variants.map((v, i) => (
       <div class="variant-row">
         <img src={specimen(v, fallback, p?.variant_images)} alt="" width="64" height="80" />
         <input type="hidden" name={`v-orig-${i}`} value={v} />
         <label class="field"><span>Nombre</span><input class="input" name={`v-name-${i}`} value={v} required /></label>
         <label class="field"><span>Cambiar foto de detalle</span><input class="input" type="file" name={`v-file-${i}`} accept="image/*" data-shrink /></label>
+        <label class="field"><span>Existencias</span><input class="input" type="number" min="0" step="1" inputmode="numeric" name={`v-stock-${i}`} value={p?.variant_stock[v] ?? ''} placeholder="Sin límite" /></label>
         <div class="variant-checks">
           <label class="check"><input type="checkbox" name={`v-del-${i}`} /> Quitar variante</label>
         </div>
@@ -74,6 +75,7 @@ const fallback = p?.images[0] ?? '';
         <span class="variant-empty" aria-hidden="true"></span>
         <label class="field"><span>Nombre</span><input class="input" name="v-name-__i__" placeholder="Por ejemplo: Rayas azules" required /></label>
         <label class="field"><span>Foto de detalle</span><input class="input" type="file" name="v-file-__i__" accept="image/*" data-shrink required /></label>
+        <label class="field"><span>Existencias</span><input class="input" type="number" min="0" step="1" inputmode="numeric" name="v-stock-__i__" placeholder="Sin límite" /></label>
         <div class="variant-checks"><button class="linkish" type="button" data-remove-row>Quitar</button></div>
       </div>
     </template>

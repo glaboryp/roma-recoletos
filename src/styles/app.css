@@ -53,7 +53,7 @@ td.num { white-space: nowrap; }
 .section > .field { width: 100%; }
 .section legend { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
 .section legend small { color: var(--ink-soft); font-weight: 500; }
-.variant-row { width: 100%; display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr) auto; gap: 14px; align-items: end; padding: 12px; background: var(--paper); }
+.variant-row { width: 100%; display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr) 110px auto; gap: 14px; align-items: end; padding: 12px; background: var(--paper); }
 .variant-row img, .variant-empty { width: 64px; height: 80px; object-fit: cover; background: var(--paper-deep); }
 .variant-checks { display: grid; gap: 6px; padding-bottom: 10px; }
 

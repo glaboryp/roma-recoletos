@@ -18,7 +18,7 @@ if (Astro.request.method === 'POST') {
   const current = id ? await one<Product>('select * from products where id = $1', [id]) : undefined;
   const files = (f.getAll('photos') as File[]).filter((file) => file.size > 0);
   const remove = f.getAll('remove').map(String);
-  // One row per variant, in form order: v-name-N, v-orig-N (name before editing), v-file-N, v-del-N.
+  // One row per variant, in form order: v-name-N, v-orig-N (name before editing), v-file-N, v-stock-N, v-del-N.
   const rows = [...f.keys()].filter((k) => k.startsWith('v-name-')).map((k) => k.slice(7))
     .sort((a, b) => Number(a) - Number(b))
     .map((i) => {
@@ -27,6 +27,7 @@ if (Astro.request.method === 'POST') {
         name: String(f.get(`v-name-${i}`) ?? '').trim(),
         orig: String(f.get(`v-orig-${i}`) ?? ''),
         file: file instanceof File && file.size > 0 ? file : null,
+        stock: String(f.get(`v-stock-${i}`) ?? '').trim(),
         del: f.get(`v-del-${i}`) === 'on',
       };
     })
@@ -45,6 +46,7 @@ if (Astro.request.method === 'POST') {
   else if (id && !current) error = 'Ese producto ya no existe.';
   else if (unnamed) error = 'Hay una variante sin nombre: escríbelo o quita esa fila.';
   else if (new Set(variants).size !== variants.length) error = 'Hay dos variantes con el mismo nombre.';
+  else if (rows.some((r) => r.stock && !/^\d+$/.test(r.stock))) error = 'Las existencias tienen que ser un número entero (0 o más), o vacías si siempre hay.';
   else if (withoutPhoto) error = `La variante «${withoutPhoto.name}» necesita una foto de detalle.`;
   else if (allFiles.some((file) => !file.type.startsWith('image/') || file.size > 4_000_000)) error = 'Las fotos tienen que ser imágenes de menos de 4 MB.';
   else if (allFiles.length && !process.env.BLOB_READ_WRITE_TOKEN) error = 'Falta conectar Vercel Blob (BLOB_READ_WRITE_TOKEN) para poder subir fotos.';
@@ -63,10 +65,11 @@ if (Astro.request.method === 'POST') {
       const src = r.file ? await upload(r.file, `${name}-${r.name}`) : current?.variant_images[r.orig];
       if (src) variantImages[r.name] = src;
     }
-    const params = [name, String(f.get('description') ?? '').trim(), JSON.stringify(tiers), cost, variants, images, f.get('active') === 'on', JSON.stringify(variantImages)];
+    const variantStock = Object.fromEntries(rows.filter((r) => r.stock).map((r) => [r.name, Number(r.stock)]));
+    const params = [name, String(f.get('description') ?? '').trim(), JSON.stringify(tiers), cost, variants, images, f.get('active') === 'on', JSON.stringify(variantImages), JSON.stringify(variantStock)];
     const row = id
-      ? await one<{ id: number }>('update products set name=$1, description=$2, tiers=$3, cost_cents=$4, variants=$5, images=$6, active=$7, variant_images=$8 where id=$9 returning id', [...params, id])
-      : await one<{ id: number }>('insert into products (name, description, tiers, cost_cents, variants, images, active, variant_images, position) values ($1,$2,$3,$4,$5,$6,$7,$8,(select coalesce(max(position),0)+1 from products)) returning id', params);
+      ? await one<{ id: number }>('update products set name=$1, description=$2, tiers=$3, cost_cents=$4, variants=$5, images=$6, active=$7, variant_images=$8, variant_stock=$9 where id=$10 returning id', [...params, id])
+      : await one<{ id: number }>('insert into products (name, description, tiers, cost_cents, variants, images, active, variant_images, variant_stock, position) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,(select coalesce(max(position),0)+1 from products)) returning id', params);
     return Astro.redirect(`/admin/productos?ok=${row!.id}#p${row!.id}`, 303);
   }
   saved = null;
