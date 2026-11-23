@@ -8,3 +8,4 @@ dist/
 .impeccable/review/
 scripts/pedidos-formulario.json
 .vercel
+promo/out/
