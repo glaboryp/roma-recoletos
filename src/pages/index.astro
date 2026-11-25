@@ -4,6 +4,7 @@ import { q, tx, type Product, type Person } from '../lib/db.ts';
 import { orderTotals, euros, formatTiers, type Line } from '../lib/pricing.ts';
 import { specimen } from '../lib/muestras.ts';
 import { notifySeller, notifySoldOut } from '../lib/mail.ts';
+import { mobile, BAD_MOBILE } from '../lib/phone.ts';
 
 const products = await q<Product>('select * from products where active order by position, id');
 const sellers = await q<Pick<Person, 'id' | 'name' | 'email'>>('select id, name, email from people where active and sells order by name');
@@ -32,8 +33,10 @@ if (Astro.request.method === 'POST') {
   if (!lines.length) error = 'Elige al menos un producto.';
   else if (!values.name) error = 'Escribe tu nombre y apellidos.';
   else if (!values.phone) error = 'Escribe tu móvil para que podamos darte el pedido.';
+  else if (!mobile(values.phone)) error = BAD_MOBILE;
   else if (!seller) error = 'Elige de parte de quién vienes.';
   else {
+    const phone = mobile(values.phone)!;
     const { total, cost } = orderTotals(products, lines);
     const result = await tx(async (c) => {
       // Lock the products so two orders at once cannot sell the same last unit.
@@ -44,7 +47,7 @@ if (Astro.request.method === 'POST') {
       const { rows: [o] } = await c.query(
         `insert into orders (seller_id, buyer_name, buyer_phone, notes, total_cents, cost_cents)
          values ($1, $2, $3, $4, $5, $6) returning id`,
-        [seller.id, values.name, values.phone, values.notes || null, total, cost],
+        [seller.id, values.name, phone, values.notes || null, total, cost],
       );
       const soldOut: { product: string; variant: string }[] = [];
       for (const l of lines) {
@@ -64,7 +67,7 @@ if (Astro.request.method === 'POST') {
       const { id, soldOut } = result;
       await notifySeller({
         seller,
-        buyer: { name: values.name, phone: values.phone },
+        buyer: { name: values.name, phone },
         notes: values.notes || null,
         total,
         items: lines.map((l) => ({ product: products.find((p) => p.id === l.product_id)!.name, variant: l.variant, qty: l.qty })),
@@ -220,6 +223,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
 
 <script>
   import { priceFor, euros, type Tier } from '../lib/pricing.ts';
+  import { mobile, BAD_MOBILE } from '../lib/phone.ts';
 
   type P = { id: number; name: string; unit: string; tiers: Tier[] };
   const products: P[] = JSON.parse(document.getElementById('pricing')!.textContent!);
@@ -271,6 +275,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
       !inputs.some((i) => Number(i.value) > 0) ? ['Elige al menos un producto.', form]
       : !field('name').value.trim() ? ['Escribe tu nombre y apellidos.', field('name')]
       : !field('phone').value.trim() ? ['Escribe tu móvil para que podamos darte el pedido.', field('phone')]
+      : !mobile(field('phone').value) ? [BAD_MOBILE, field('phone')]
       : !field('seller').value ? ['Elige de parte de quién vienes.', field('seller')]
       : [];
     if (!message) return;
