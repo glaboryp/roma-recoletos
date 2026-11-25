@@ -31,8 +31,13 @@ if (Astro.request.method === 'POST') {
 
 const de = Astro.url.searchParams.get('de') ?? '';
 const estado = Astro.url.searchParams.get('estado') ?? '';
+const producto = Astro.url.searchParams.get('producto') ?? '';
 const all = await listOrders();
-const orders = all.filter((o) => (!de || String(o.seller_id) === de) && (estado === 'pendientes' ? !o.paid : estado === 'pagados' ? o.paid : true));
+const orders = all.filter((o) =>
+  (!de || String(o.seller_id) === de) &&
+  (estado === 'pendientes' ? !o.paid : estado === 'pagados' ? o.paid : true) &&
+  (!producto || o.items.some((i) => i.product === producto)));
+const products = await q<{ name: string }>('select name from products order by name');
 const people = await q<Person>('select * from people order by name');
 const bizum = await setting('bizum');
 
@@ -109,8 +114,15 @@ const bySeller = people
           <option value="pagados" selected={estado === 'pagados'}>Pagados</option>
         </select>
       </label>
+      <label class="field">
+        <span>Producto</span>
+        <select class="input" name="producto">
+          <option value="">Todos</option>
+          {products.map((p) => <option value={p.name} selected={p.name === producto}>{p.name}</option>)}
+        </select>
+      </label>
       <button class="btn ghost small" type="submit">Filtrar</button>
-      {(de || estado) && <a href="/admin#pedidos">Quitar filtros</a>}
+      {(de || estado || producto) && <a href="/admin#pedidos">Quitar filtros</a>}
     </form>
     {orders.length === 0 ? (
       <p class="empty">No hay pedidos con estos filtros.</p>
