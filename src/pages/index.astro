@@ -349,6 +349,11 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
   }
   .details-form { grid-column: 1 / 7; display: grid; gap: 20px; }
   .details-form h2 { margin-bottom: 8px; }
+  /* Chrome's native list can open on top of the select when it fits neither above nor below, and the mouse release then picks whoever is under the pointer. The customizable picker always opens beside it. */
+  .details select, .details select::picker(select) { appearance: base-select; }
+  .details select::picker(select) { border: 2px solid var(--ink); background: var(--paper-raised); padding: 4px 0; }
+  .details select option { padding: 8px 14px; }
+  .details select option:hover, .details select option:focus-visible { background: var(--paper-deep); }
   .summary { grid-column: 8 / 13; position: sticky; top: 24px; background: var(--ink); color: var(--paper); padding: 32px; display: grid; gap: 20px; }
   .summary h2 { font: 400 48px/1 var(--display); text-transform: uppercase; color: var(--paper); }
   .sum-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
