@@ -156,7 +156,7 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
       <section class="details" id="datos" aria-labelledby="datos-h">
         <div class="details-form">
           <h2 id="datos-h">Tus datos</h2>
-          {error && <p class="notice" role="alert">{error}</p>}
+          <p class="notice" role="alert" data-error hidden={!error}>{error}</p>
           <label class="field">
             <span>Nombre y apellidos</span>
             <input class="input" name="name" autocomplete="name" required value={values.name} />
@@ -258,9 +258,28 @@ const pricing = products.map((p) => ({ id: p.id, name: p.name, unit: unit(p), ti
     const input = btn.parentElement!.querySelector('input')!;
     input.value = String(Math.min(Number(input.max), Math.max(0, (Number(input.value) || 0) + Number(btn.dataset.step))));
     update();
+    notice.hidden = true;
   });
-  form.addEventListener('input', update);
+  form.addEventListener('input', () => { update(); notice.hidden = true; });
   update();
+
+  // Same checks as the server, so a missing field is pointed out at once instead of after a round trip.
+  const notice = form.querySelector<HTMLElement>('[data-error]')!;
+  form.addEventListener('submit', (e) => {
+    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement;
+    const [message, target] =
+      !inputs.some((i) => Number(i.value) > 0) ? ['Elige al menos un producto.', form]
+      : !field('name').value.trim() ? ['Escribe tu nombre y apellidos.', field('name')]
+      : !field('phone').value.trim() ? ['Escribe tu móvil para que podamos darte el pedido.', field('phone')]
+      : !field('seller').value ? ['Elige de parte de quién vienes.', field('seller')]
+      : [];
+    if (!message) return;
+    e.preventDefault();
+    notice.textContent = message;
+    notice.hidden = false;
+    if (target === form) form.scrollIntoView();
+    else target.focus();
+  });
 
   // The thumbnails under each product photo switch the big photo.
   for (const cat of document.querySelectorAll<HTMLElement>('.cat')) {
