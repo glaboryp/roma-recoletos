@@ -1,3 +1,5 @@
+/* Filters reload the page onto #pedidos; smooth scroll would animate that jump from the top. */
+html:has(body.app) { scroll-behavior: auto; }
 .app { font-size: 16px; background: var(--paper); }
 .topbar {
   display: flex; align-items: center; gap: 12px 32px; flex-wrap: wrap;
