@@ -1,8 +1,6 @@
-/* Filters reload the page onto #pedidos; smooth scroll would animate that jump from the top. */
-html:has(body.app) { scroll-behavior: auto; }
 .app { font-size: 16px; background: var(--paper); }
 .topbar {
-  display: flex; align-items: center; gap: 12px 32px; flex-wrap: wrap;
+  position: relative; display: flex; align-items: center; gap: 12px 32px; flex-wrap: wrap;
   padding: 12px var(--margin); background: var(--paper-deep);
 }
 .brand { font: 400 26px/1 var(--display); text-transform: uppercase; color: var(--wine); text-decoration: none; }
@@ -10,6 +8,12 @@ html:has(body.app) { scroll-behavior: auto; }
 .topbar nav a { padding: 8px 12px; text-decoration: none; font-weight: 700; font-size: 15px; transition: background-color 160ms var(--ease); }
 .topbar nav a:hover { background: var(--paper); }
 .topbar nav a[aria-current='page'] { background: var(--ink); color: var(--paper); }
+.loading .topbar::after {
+  content: ''; position: absolute; left: 0; bottom: 0; width: 100%; height: 3px; background: var(--wine);
+  transform-origin: left; animation: loading 8s cubic-bezier(0.1, 0.7, 0.2, 1) forwards;
+}
+@keyframes loading { from { transform: scaleX(0); } to { transform: scaleX(0.9); } }
+.loading .canvas { opacity: 0.45; pointer-events: none; transition: opacity 200ms var(--ease) 150ms; }
 .who { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 600; }
 
 .canvas { max-width: 1680px; margin: 0 auto; padding: 40px var(--margin) 96px; display: grid; gap: 48px; }

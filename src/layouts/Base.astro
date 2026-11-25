@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import LandOnAnchor from '../components/LandOnAnchor.astro';
 interface Props { title: string; description?: string }
 const { title, description = 'Fajines y calcetines para pagarnos el viaje a Roma esta Semana Santa. Centro universitario Recoletos.' } = Astro.props;
 ---
@@ -15,6 +16,7 @@ const { title, description = 'Fajines y calcetines para pagarnos el viaje a Roma
     <meta property="og:image" content={new URL('/products/0008.webp', Astro.url)} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{title}</title>
+    <LandOnAnchor />
   </head>
   <body>
     <slot />

@@ -1,0 +1,13 @@
+<script is:inline>
+  // A page that loads onto #anchor (filters, the order form after an error) would paint at the top and then jump: hide it until it is scrolled into place.
+  if (location.hash) {
+    const html = document.documentElement;
+    html.style.visibility = 'hidden';
+    html.style.scrollBehavior = 'auto';
+    addEventListener('DOMContentLoaded', () => {
+      document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+      html.style.visibility = '';
+    });
+    addEventListener('load', () => setTimeout(() => (html.style.scrollBehavior = '')));
+  }
+</script>
